@@ -16,20 +16,18 @@ public class WebCamera : MonoBehaviour
 
     private IEnumerator laserDetectorCoroutine;
 
+    //source of const: https://stackoverflow.com/questions/596216/formula-to-determine-perceived-brightness-of-rgb-color
     private const double R_VALUE = 0.299;
     private const double G_VALUE = 0.587;
     private const double B_VALUE = 0.114;
     private const double PIXEL_LUMINANCE_TRESHOLD = 150;
 
-    private Border top;
-    private Border bottom;
-    private Border left;
-    private Border right;
+    private BorderPoint top;
+    private BorderPoint bottom;
+    private BorderPoint left;
+    private BorderPoint right;
 
     [SerializeField] private GameObject markerSprite;
-    private RectTransform markerTransform;
-    //[SerializeField] private TextMeshProUGUI text;
-    
     void Start()
     {
         WebCamDevice[] devices = WebCamTexture.devices;
@@ -50,15 +48,12 @@ public class WebCamera : MonoBehaviour
         LogWebcamInfo();
         
         //setUp
-        top = new Border(-1, 0, 0, 0);
-        bottom = new Border(-1, 1920, 0, 0);
+        top = new BorderPoint( 0, 0, 0);
+        bottom = new BorderPoint(1080, 0, 0);
         
-        left = new Border(1080, -1, 0, 0);
-        right = new Border(0, -1, 0, 0);
+        left = new BorderPoint(1920, 0, 0);
+        right = new BorderPoint(0, 0, 0);
         
-        markerTransform = markerSprite.GetComponent<RectTransform>();
-        
-        //laserDetectorCoroutine = GreyedImageProcess();
         laserDetectorCoroutine = LaserPointerPositionUpdaterProcess();
         StartCoroutine(laserDetectorCoroutine);
     }
@@ -80,23 +75,6 @@ public class WebCamera : MonoBehaviour
         
     }
 
-    /*IEnumerator GreyedImageProcess()
-    {
-        for (; ; )
-        {
-            yield return new WaitForEndOfFrame();
-            webCamPixels = webCamTexture.GetPixels32();
-
-            for (int i = 0; i < webCamPixels.Length; i++)
-            {
-                webCamPixels[i].r = webCamPixels[i].g = webCamPixels[i].b = (webCamPixels[i].r + webCamPixels[i].g + webCamPixels[i].b) / 3;
-            }
-            resultImage.SetPixels(webCamPixels);
-            resultImage.Apply();
-            outputImageHolder.texture = resultImage;
-        }
-    }*/
-    
     IEnumerator LaserPointerPositionUpdaterProcess()
     {
         int width = webCamTexture.requestedWidth;
@@ -114,9 +92,8 @@ public class WebCamera : MonoBehaviour
 
                 if (pixelLuminance > PIXEL_LUMINANCE_TRESHOLD)
                 {
-                    left.SetPos(currentX, currentY);
+                    //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
                     UpdateBorders(currentX, currentY, pixelLuminance);
-                    //markerSprite.transform.position = new Vector3(left.GetPosX(), left.GetPosY(), 0);
                     updateMarker = true;
                 }
 
@@ -124,7 +101,7 @@ public class WebCamera : MonoBehaviour
 
             if (updateMarker)
             {
-                UpdatePointerImage();
+                UpdateMarkerImage();
                 updateMarker = false;
             }
             ResetBorders();
@@ -133,88 +110,73 @@ public class WebCamera : MonoBehaviour
 
     private void UpdateBorders(int x, int y, double luminance)
     {
-        string t = "";
         //top
-        if (top.GetLuminance() < luminance && y > top.GetPosY())
+        if (top.GetLuminance() < luminance && y > top.GetPos())
         {
-            top.SetPos(0,y);
+            top.SetPos(y);
             top.SetLuminance(luminance);
-            t += "TOP: " + y + "; lum: \n" + luminance;
         }
         
         //bottom
-        if (bottom.GetLuminance() < luminance && y < bottom.GetPosY())
+        if (bottom.GetLuminance() < luminance && y < bottom.GetPos())
         {
-            bottom.SetPos(0, y);
+            bottom.SetPos(y);
             bottom.SetLuminance(luminance);
-            t += "BOTTOM: " + y + "; lum: \n" + luminance;
         }
         
         //left
-        if (left.GetLuminance() < luminance && x < left.GetPosX())
+        if (left.GetLuminance() < luminance && x < left.GetPos())
         {
-            left.SetPos(x, 0);
+            left.SetPos(x);
             left.SetLuminance(luminance);
-            t += "LEFT: " + x + "; lum: \n" + luminance;
         }
         
         //right
-        if (right.GetLuminance() < luminance && x > right.GetPosX())
+        if (right.GetLuminance() < luminance && x > right.GetPos())
         {
-            right.SetPos(x, 0);
+            right.SetPos(x);
             right.SetLuminance(luminance);
-            t += "RIGHT: " + x + "; lum: \n" + luminance;
         }
-
-        if (!t.Equals(""))
-        {
-            Debug.Log(t);
-        }
-        //text.text = t;
     }
 
-    private static double CalculateLuminance(Color32 color32)
+    /*private static double CalculateLuminance(Color32 color32)
     {
         return R_VALUE * color32.r+ G_VALUE * color32.g + B_VALUE * color32.b;
-    }
+    }*/
 
-    private void UpdatePointerImage()
+    private void UpdateMarkerImage()
     {
-        var centerX = (left.GetPosX() + right.GetPosX()) / 2;
-        var centerY = (top.GetPosY() + bottom.GetPosY()) / 2;
+        var centerX = (left.GetPos() + right.GetPos()) / 2;
+        var centerY = (top.GetPos() + bottom.GetPos()) / 2;
         markerSprite.transform.position = new Vector3(centerX, centerY, 0);
     }
 
     void ResetBorders()
     {
-        top.SetValues(0, 0, -1);
-        bottom.SetValues(0, 1920, -1);
+        top.SetValues(0, -1);
+        bottom.SetValues(1080, -1);
         
-        left.SetValues(1080, 0, -1);
-        right.SetValues(0, 0, -1);
+        left.SetValues(1920, -1);
+        right.SetValues( 0, -1);
     }
 }
 
-public class Border
+public class BorderPoint
 {
     private double luminance;
-    
-    private int posX;
-    private int posY;
+    private int value;
 
     private int posIn2dArray;
 
-    public Border(int x, int y, float luminance)
+    public BorderPoint(int x, float luminance)
     {
-        posX = x;
-        posY = y;
+        value = x;
         this.luminance = luminance;
     }
     
-    public Border(int x, int y, float luminance, int posIn2dArray)
+    public BorderPoint(int x, float luminance, int posIn2dArray)
     {
-        posX = x;
-        posY = y;
+        value = x;
         this.luminance = luminance;
         this.posIn2dArray = posIn2dArray;
     }
@@ -224,13 +186,9 @@ public class Border
         return luminance;
     }
 
-    public int GetPosX()
+    public int GetPos()
     {
-        return posX;
-    }
-    public int GetPosY()
-    {
-        return posY;
+        return value;
     }
 
     public void SetLuminance(double luminance)
@@ -239,16 +197,14 @@ public class Border
     }
 
     
-    public void SetPos(int x, int y)
+    public void SetPos(int x)
     {
-        posX = x;
-        posY = y;
+        value = x;
     }
     
-    public void SetValues(int x, int y, double luminance)
+    public void SetValues(int x, double luminance)
     {
-        posX = x;
-        posY = y;
+        value = x;
         this.luminance = luminance;
     }
 
