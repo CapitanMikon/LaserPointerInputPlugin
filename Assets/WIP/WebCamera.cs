@@ -19,7 +19,7 @@ public class WebCamera : MonoBehaviour
     private const double R_VALUE = 0.299;
     private const double G_VALUE = 0.587;
     private const double B_VALUE = 0.114;
-    private const double PIXEL_LUMINANCE_TRESHOLD = 100;
+    private const double PIXEL_LUMINANCE_TRESHOLD = 150;
 
     private Border top;
     private Border bottom;
@@ -50,10 +50,11 @@ public class WebCamera : MonoBehaviour
         LogWebcamInfo();
         
         //setUp
-        top = new Border(-1, 1920, 0, 0);
-        bottom = new Border(-1, 0, 0, 0);
-        left = new Border(0, -1, 0, 0);
-        right = new Border(1080, -1, 0, 0);
+        top = new Border(-1, 0, 0, 0);
+        bottom = new Border(-1, 1920, 0, 0);
+        
+        left = new Border(1080, -1, 0, 0);
+        right = new Border(0, -1, 0, 0);
         
         markerTransform = markerSprite.GetComponent<RectTransform>();
         
@@ -114,7 +115,7 @@ public class WebCamera : MonoBehaviour
                 if (pixelLuminance > PIXEL_LUMINANCE_TRESHOLD)
                 {
                     left.SetPos(currentX, currentY);
-                    //UpdateBorders(currentX, currentY, pixelLuminance);
+                    UpdateBorders(currentX, currentY, pixelLuminance);
                     //markerSprite.transform.position = new Vector3(left.GetPosX(), left.GetPosY(), 0);
                     updateMarker = true;
                 }
@@ -134,15 +135,15 @@ public class WebCamera : MonoBehaviour
     {
         string t = "";
         //top
-        if (top.GetLuminance() < luminance && y < top.GetPosY())
+        if (top.GetLuminance() < luminance && y > top.GetPosY())
         {
             top.SetPos(0,y);
             top.SetLuminance(luminance);
             t += "TOP: " + y + "; lum: \n" + luminance;
         }
         
-        /*//bottom
-        if (bottom.GetLuminance() < luminance && y > bottom.GetPosY())
+        //bottom
+        if (bottom.GetLuminance() < luminance && y < bottom.GetPosY())
         {
             bottom.SetPos(0, y);
             bottom.SetLuminance(luminance);
@@ -163,7 +164,7 @@ public class WebCamera : MonoBehaviour
             right.SetPos(x, 0);
             right.SetLuminance(luminance);
             t += "RIGHT: " + x + "; lum: \n" + luminance;
-        }*/
+        }
 
         if (!t.Equals(""))
         {
@@ -179,17 +180,18 @@ public class WebCamera : MonoBehaviour
 
     private void UpdatePointerImage()
     {
-        var centerX = left.GetPosX();
-        var centerY = left.GetPosY();
+        var centerX = (left.GetPosX() + right.GetPosX()) / 2;
+        var centerY = (top.GetPosY() + bottom.GetPosY()) / 2;
         markerSprite.transform.position = new Vector3(centerX, centerY, 0);
     }
 
     void ResetBorders()
     {
-        top.SetValues(0, 1920, -1);
-        bottom.SetValues(0, -1, -1);
-        left.SetValues(-1, 0, -1);
-        right.SetValues(1080, 0, -1);
+        top.SetValues(0, 0, -1);
+        bottom.SetValues(0, 1920, -1);
+        
+        left.SetValues(1080, 0, -1);
+        right.SetValues(0, 0, -1);
     }
 }
 
