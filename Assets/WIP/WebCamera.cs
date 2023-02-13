@@ -1,26 +1,23 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WebCamera : MonoBehaviour
 {
-    public GameObject copy;
-    public Renderer rend_other;
-    public Renderer main;
-    private WebCamTexture webcam;
-    private Color[] camPixels;
+    [SerializeField] private RawImage webcamImageHolder;
+    [SerializeField] private RawImage outputImageHolder;
+    
+    private WebCamTexture webCamTexture;
+    private Color[] webCamPixels;
+    
+    private Texture2D resultImage;
 
-    private WebCamTexture image;
-    private Texture2D image2;
+    private IEnumerator laserDetectorCoroutine;
 
-    // Start is called before the first frame update
     void Start()
     {
-        rend_other = copy.GetComponent<Renderer>();
-        main = GetComponent<Renderer>();
-
         WebCamDevice[] devices = WebCamTexture.devices;
+        
         for (var i = 0; i < devices.Length; i++)
         {
             Debug.Log("camera <" + devices[i].name + "> detected");
@@ -28,85 +25,49 @@ public class WebCamera : MonoBehaviour
 
         if (devices.Length > 0)
         {
-            webcam = new WebCamTexture(devices[0].name);
-            main.material.mainTexture = webcam;
-            //setTo720p30FPS();
-            setTo1080p60FPS();
-            webcam.Play();
+            webCamTexture = new WebCamTexture(devices[0].name);
+            webcamImageHolder.texture = webCamTexture;
+            ConfigureWebcam(1920, 1080, 60);
+            webCamTexture.Play();
         }
-        image = main.material.mainTexture as WebCamTexture;
-        image2 = new Texture2D(image.width, image.height);
-        //StartCoroutine("Process");
+        resultImage = new Texture2D(webCamTexture.width, webCamTexture.height);
+        LogWebcamInfo();
+        
+        laserDetectorCoroutine = LaserDetectorProcess();
+        StartCoroutine(laserDetectorCoroutine);
     }
 
-    void setTo720p30FPS()
+    void ConfigureWebcam(int width, int height, int fps)
     {
-        webcam.requestedFPS = 30;
-        webcam.requestedWidth = 1280;
-        webcam.requestedHeight = 720;
+        webCamTexture.requestedFPS = fps;
+        webCamTexture.requestedWidth = width;
+        webCamTexture.requestedHeight = height;
     }
-    
-    void setTo1080p60FPS()
+
+    void LogWebcamInfo()
     {
-        webcam.requestedFPS = 60;
-        webcam.requestedWidth = 1920;
-        webcam.requestedHeight = 1080;
+        Debug.Log($"Current camera configuration:\nFPS: {webCamTexture.requestedFPS}\nRes: {webCamTexture.width}x{webCamTexture.height}");
     }
 
     private void Update()
     {
-        Debug.Log(String.Format("Camera FPS: {0}", webcam.requestedFPS));
-        Debug.Log(String.Format("Camera resolution: {0}x{1}", webcam.width, webcam.height));
-    }
-
-    // Update is called once per frame
-    void LateUpdate()
-    {
-        //doIMGStuff();
-    }
-
-    void doIMGStuff()
-    {
-        WebCamTexture image = main.material.mainTexture as WebCamTexture;
-        Texture2D image2 = new Texture2D(image.width, image.height);
-        camPixels = image.GetPixels();
-
-        for (int i = 0; i < camPixels.Length; i++)
-        {
-            camPixels[i].r = camPixels[i].g = camPixels[i].b = (camPixels[i].r + camPixels[i].g + camPixels[i].b) / 3;
-        }
-        image2.SetPixels(camPixels);
-        image2.Apply();
-        rend_other.material.mainTexture = image2;
         
-        /*for (int y = 0; y < image.height; y++)
-        {
-            for (int x = 0; x < image.width; x++)
-            {
-                Color color = image.GetPixel(x, y);
-                color.b = color.g = color.r = (color.b + color.g + color.r) / 3;
-                image2.SetPixel(x, y, color);
-            }
-        }*/
-
-        //image2.Apply();
-        //rend_other.material.mainTexture = image2;
     }
-    
-    IEnumerator Process()
+
+    IEnumerator LaserDetectorProcess()
     {
         for (; ; )
         {
-            yield return new WaitForSeconds(1f);
-            camPixels = image.GetPixels();
+            yield return new WaitForEndOfFrame();
+            webCamPixels = webCamTexture.GetPixels();
 
-            for (int i = 0; i < camPixels.Length; i++)
+            for (int i = 0; i < webCamPixels.Length; i++)
             {
-                camPixels[i].r = camPixels[i].g = camPixels[i].b = (camPixels[i].r + camPixels[i].g + camPixels[i].b) / 3;
+                webCamPixels[i].r = webCamPixels[i].g = webCamPixels[i].b = (webCamPixels[i].r + webCamPixels[i].g + webCamPixels[i].b) / 3;
             }
-            image2.SetPixels(camPixels);
-            image2.Apply();
-            rend_other.material.mainTexture = image2;
+            resultImage.SetPixels(webCamPixels);
+            resultImage.Apply();
+            outputImageHolder.texture = resultImage;
         }
     }
 }
