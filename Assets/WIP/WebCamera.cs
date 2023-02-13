@@ -98,6 +98,7 @@ public class WebCamera : MonoBehaviour
     
     IEnumerator LaserPointerPositionUpdaterProcess()
     {
+        int width = webCamTexture.requestedWidth;
         for (; ; )
         {
             yield return new WaitForEndOfFrame();
@@ -105,9 +106,9 @@ public class WebCamera : MonoBehaviour
 
             for (int i = 0; i < webCamPixels.Length; i++)
             {
-                var pixelLuminance = CalculateLuminance(webCamPixels[i]);
-                int currentX = i % webCamTexture.requestedWidth;
-                int currentY = i / webCamTexture.requestedWidth;
+                var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
+                int currentX = i % width;
+                int currentY = i / width;
 
                 if (pixelLuminance > PIXEL_LUMINANCE_TRESHOLD)
                 {
