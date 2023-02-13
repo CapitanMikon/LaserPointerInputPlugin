@@ -99,6 +99,7 @@ public class WebCamera : MonoBehaviour
     IEnumerator LaserPointerPositionUpdaterProcess()
     {
         int width = webCamTexture.requestedWidth;
+        bool updateMarker = false;
         for (; ; )
         {
             yield return new WaitForEndOfFrame();
@@ -112,14 +113,20 @@ public class WebCamera : MonoBehaviour
 
                 if (pixelLuminance > PIXEL_LUMINANCE_TRESHOLD)
                 {
+                    left.SetPos(currentX, currentY);
                     //UpdateBorders(currentX, currentY, pixelLuminance);
-                    markerSprite.transform.position = new Vector3(currentX, currentY, 0);
+                    //markerSprite.transform.position = new Vector3(left.GetPosX(), left.GetPosY(), 0);
+                    updateMarker = true;
                 }
 
             }
 
-            //UpdatePointerImage();
-            //ResetBorders();
+            if (updateMarker)
+            {
+                UpdatePointerImage();
+                updateMarker = false;
+            }
+            ResetBorders();
         }
     }
 
@@ -134,7 +141,7 @@ public class WebCamera : MonoBehaviour
             t += "TOP: " + y + "; lum: \n" + luminance;
         }
         
-        //bottom
+        /*//bottom
         if (bottom.GetLuminance() < luminance && y > bottom.GetPosY())
         {
             bottom.SetPos(0, y);
@@ -156,7 +163,7 @@ public class WebCamera : MonoBehaviour
             right.SetPos(x, 0);
             right.SetLuminance(luminance);
             t += "RIGHT: " + x + "; lum: \n" + luminance;
-        }
+        }*/
 
         if (!t.Equals(""))
         {
@@ -172,9 +179,9 @@ public class WebCamera : MonoBehaviour
 
     private void UpdatePointerImage()
     {
-        var centerX = right.GetPosX() - left.GetPosX();
-        var centerY = top.GetPosY() - bottom.GetPosY();
-        markerSprite.transform.localPosition = new Vector3(centerX, centerY, 0);
+        var centerX = left.GetPosX();
+        var centerY = left.GetPosY();
+        markerSprite.transform.position = new Vector3(centerX, centerY, 0);
     }
 
     void ResetBorders()
