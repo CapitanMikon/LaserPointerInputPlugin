@@ -43,7 +43,10 @@ public class WebCamera : MonoBehaviour
 
     private bool firstClick = true;
     private bool isCalibrating = true;
-    
+
+    private float factorX;
+    private float factorY;
+
     void Start()
     {
         ResetMarkerImagePos();
@@ -135,6 +138,12 @@ public class WebCamera : MonoBehaviour
                     restrictionBottomRight.x = Convert.ToInt32(screenPosition.x);
                     restrictionBottomRight.y = Convert.ToInt32(screenPosition.y);
                     isCalibrating = false;
+                    
+                    //calculate factors
+                    var restrictedZoneHeight = Mathf.Abs(restrictionTopLeft.y - restrictionBottomRight.y); //height funguje
+                    factorY =  Convert.ToSingle(CAMERA_HEIGHT) / restrictedZoneHeight;
+
+                    Debug.LogWarning($"Factor is {factorX}:{factorY}");
                     Debug.Log("Calibrating ended.");
                     StartLaserDetection();
                 }
@@ -220,7 +229,7 @@ public class WebCamera : MonoBehaviour
         Debug.Log("Marker was updated!");
         var centerX = (left.GetPos() + right.GetPos()) / 2;
         var centerY = (top.GetPos() + bottom.GetPos()) / 2;
-        markerSprite.transform.position = new Vector3(centerX, centerY, 0);
+        markerSprite.transform.position = new Vector3(centerX, centerY * factorY - (restrictionTopLeft.y - restrictionBottomRight.y), 0);
     }
 
     private void ResetMarkerImagePos()
