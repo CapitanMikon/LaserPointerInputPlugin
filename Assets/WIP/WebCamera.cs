@@ -7,29 +7,37 @@ using UnityEngine.UI;
 public class WebCamera : MonoBehaviour
 {
     [SerializeField] private RawImage webcamImageHolder;
-    [SerializeField] private RawImage outputImageHolder;
     
     private WebCamTexture webCamTexture;
     private Color32[] webCamPixels;
     
-    private Texture2D resultImage;
-
     private IEnumerator laserDetectorCoroutine;
 
     //source of const: https://stackoverflow.com/questions/596216/formula-to-determine-perceived-brightness-of-rgb-color
     private const double R_VALUE = 0.299;
     private const double G_VALUE = 0.587;
     private const double B_VALUE = 0.114;
-    private const double PIXEL_LUMINANCE_TRESHOLD = 150;
+    private const double PIXEL_LUMINANCE_THRESHOLD = 100;
+    private const int EMPTY_FRAMES_THRESHOLD = 5;
+
+    private int CAMERA_WIDTH = -1;
+    private int CAMERA_HEIGHT = -1;
+    private int CAMERA_FPS = -1;
 
     private BorderPoint top;
     private BorderPoint bottom;
     private BorderPoint left;
     private BorderPoint right;
+    
+    private int emptyFrames = 0;
+    private Vector3 markerDefaultPosition = new Vector3(-100, -100, 0);
+    private bool beginNoLaserProcedure;
 
     [SerializeField] private GameObject markerSprite;
     void Start()
     {
+        ResetMarkerImagePos();
+        
         WebCamDevice[] devices = WebCamTexture.devices;
         
         for (var i = 0; i < devices.Length; i++)
@@ -44,14 +52,17 @@ public class WebCamera : MonoBehaviour
             ConfigureWebcam(1920, 1080, 60);
             webCamTexture.Play();
         }
-        resultImage = new Texture2D(webCamTexture.width, webCamTexture.height);
         LogWebcamInfo();
+        
+        //get real width and height
+        CAMERA_WIDTH = webCamTexture.requestedWidth;
+        CAMERA_HEIGHT = webCamTexture.requestedHeight;
         
         //setUp
         top = new BorderPoint( 0, 0, 0);
-        bottom = new BorderPoint(1080, 0, 0);
+        bottom = new BorderPoint(CAMERA_HEIGHT, 0, 0);
         
-        left = new BorderPoint(1920, 0, 0);
+        left = new BorderPoint(CAMERA_WIDTH, 0, 0);
         right = new BorderPoint(0, 0, 0);
         
         laserDetectorCoroutine = LaserPointerPositionUpdaterProcess();
@@ -72,12 +83,21 @@ public class WebCamera : MonoBehaviour
 
     private void Update()
     {
-        
+        if (beginNoLaserProcedure)
+        {
+            if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
+            {
+                ResetMarkerImagePos();
+                emptyFrames = 0;
+                beginNoLaserProcedure = false;
+            }
+
+            emptyFrames++;
+        }
     }
 
     IEnumerator LaserPointerPositionUpdaterProcess()
     {
-        int width = webCamTexture.requestedWidth;
         bool updateMarker = false;
         for (; ; )
         {
@@ -87,10 +107,10 @@ public class WebCamera : MonoBehaviour
             for (int i = 0; i < webCamPixels.Length; i++)
             {
                 var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
-                int currentX = i % width;
-                int currentY = i / width;
+                int currentX = i % CAMERA_WIDTH;
+                int currentY = i / CAMERA_WIDTH;
 
-                if (pixelLuminance > PIXEL_LUMINANCE_TRESHOLD)
+                if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
                 {
                     //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
                     UpdateBorders(currentX, currentY, pixelLuminance);
@@ -103,7 +123,9 @@ public class WebCamera : MonoBehaviour
             {
                 UpdateMarkerImage();
                 updateMarker = false;
+                beginNoLaserProcedure = true;
             }
+            
             ResetBorders();
         }
     }
@@ -146,17 +168,24 @@ public class WebCamera : MonoBehaviour
 
     private void UpdateMarkerImage()
     {
+        Debug.Log("Marker was updated!");
         var centerX = (left.GetPos() + right.GetPos()) / 2;
         var centerY = (top.GetPos() + bottom.GetPos()) / 2;
         markerSprite.transform.position = new Vector3(centerX, centerY, 0);
     }
 
+    private void ResetMarkerImagePos()
+    {
+        Debug.LogWarning("Marker was reset off screen!");
+        markerSprite.transform.position = markerDefaultPosition;
+    }
+
     void ResetBorders()
     {
         top.SetValues(0, -1);
-        bottom.SetValues(1080, -1);
+        bottom.SetValues(CAMERA_HEIGHT, -1);
         
-        left.SetValues(1920, -1);
+        left.SetValues(CAMERA_WIDTH, -1);
         right.SetValues( 0, -1);
     }
 }
