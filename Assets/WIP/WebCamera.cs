@@ -34,6 +34,16 @@ public class WebCamera : MonoBehaviour
     private bool beginNoLaserProcedure;
 
     [SerializeField] private GameObject markerSprite;
+    
+    
+    
+    //restrictions
+    private Pair restrictionTopLeft = new Pair();
+    private Pair restrictionBottomRight = new Pair();
+
+    private bool firstClick = true;
+    private bool isCalibrating = true;
+    
     void Start()
     {
         ResetMarkerImagePos();
@@ -58,7 +68,7 @@ public class WebCamera : MonoBehaviour
         CAMERA_WIDTH = webCamTexture.requestedWidth;
         CAMERA_HEIGHT = webCamTexture.requestedHeight;
         
-        //setUp
+        //set up borders
         top = new BorderPoint( 0, 0, 0);
         bottom = new BorderPoint(CAMERA_HEIGHT, 0, 0);
         
@@ -66,7 +76,7 @@ public class WebCamera : MonoBehaviour
         right = new BorderPoint(0, 0, 0);
         
         laserDetectorCoroutine = LaserPointerPositionUpdaterProcess();
-        StartCoroutine(laserDetectorCoroutine);
+        //StartLaserDetection();
     }
 
     void ConfigureWebcam(int width, int height, int fps)
@@ -74,6 +84,19 @@ public class WebCamera : MonoBehaviour
         webCamTexture.requestedFPS = fps;
         webCamTexture.requestedWidth = width;
         webCamTexture.requestedHeight = height;
+    }
+
+    public void StartLaserDetection()
+    {
+        Debug.Log("Started laser detection.");
+        StartCoroutine(laserDetectorCoroutine);
+    }
+    
+    public void StopLaserDetection()
+    {
+        Debug.Log("Stopped laser detection.");
+        StopCoroutine(laserDetectorCoroutine);
+        ResetMarkerImagePos();
     }
 
     void LogWebcamInfo()
@@ -94,6 +117,29 @@ public class WebCamera : MonoBehaviour
 
             emptyFrames++;
         }
+
+        if (isCalibrating)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Vector2 screenPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                Debug.Log($"Mouse click at [{screenPosition.x}, {screenPosition.y}]");
+                if (firstClick)
+                {
+                    restrictionTopLeft.x = Convert.ToInt32(screenPosition.x);
+                    restrictionTopLeft.y = Convert.ToInt32(screenPosition.y);
+                    firstClick = false;
+                }
+                else
+                {
+                    restrictionBottomRight.x = Convert.ToInt32(screenPosition.x);
+                    restrictionBottomRight.y = Convert.ToInt32(screenPosition.y);
+                    isCalibrating = false;
+                    Debug.Log("Calibrating ended.");
+                    StartLaserDetection();
+                }
+            }
+        }
     }
 
     IEnumerator LaserPointerPositionUpdaterProcess()
@@ -109,12 +155,15 @@ public class WebCamera : MonoBehaviour
                 var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
                 int currentX = i % CAMERA_WIDTH;
                 int currentY = i / CAMERA_WIDTH;
-
-                if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
+                if (currentX >= restrictionTopLeft.x && currentX <= restrictionBottomRight.x
+                    && currentY >= restrictionBottomRight.y && currentY <= restrictionTopLeft.y)//is within restrictions
                 {
-                    //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
-                    UpdateBorders(currentX, currentY, pixelLuminance);
-                    updateMarker = true;
+                    if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
+                    {
+                        //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
+                        UpdateBorders(currentX, currentY, pixelLuminance);
+                        updateMarker = true;
+                    }
                 }
 
             }
@@ -241,4 +290,10 @@ public class BorderPoint
     {
         this.posIn2dArray = posIn2dArray;
     }
+}
+
+struct Pair
+{
+    public int x;
+    public int y;
 }
