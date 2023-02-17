@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,6 +23,14 @@ public class WebCamera : MonoBehaviour
     private int CAMERA_HEIGHT = -1;
     private int CAMERA_FPS = -1;
 
+    
+    //scaling from game to camera
+    private int GAME_WINDOW_WIDTH = -1;
+    private int GAME_WINDOW_HEIGHT = -1;
+    private float GAME_WINDOW_FACTORX = -1;
+    private float GAME_WINDOW_FACTORY = -1;
+
+    //border points for detected laser dot
     private BorderPoint top;
     private BorderPoint bottom;
     private BorderPoint left;
@@ -36,8 +43,7 @@ public class WebCamera : MonoBehaviour
     [SerializeField] private GameObject markerSprite;
     
     
-    
-    //restrictions
+    //scaling from camera (smaller projected image) to computer screen
     private Pair restrictionTopLeft = new Pair();
     private Pair restrictionBottomRight = new Pair();
 
@@ -63,14 +69,25 @@ public class WebCamera : MonoBehaviour
             webCamTexture = new WebCamTexture(devices[0].name);
             webcamImageHolder.texture = webCamTexture;
             ConfigureWebcam(1920, 1080, 60);
+            //ConfigureWebcam(1280, 720, 30);
             webCamTexture.Play();
         }
         LogWebcamInfo();
         
-        //get real width and height
+        //get real camera/game width and height
         CAMERA_WIDTH = webCamTexture.requestedWidth;
         CAMERA_HEIGHT = webCamTexture.requestedHeight;
+
+        GAME_WINDOW_HEIGHT = Display.main.systemHeight;
+        GAME_WINDOW_WIDTH = Display.main.systemWidth;
         
+        Debug.LogWarning($"Window res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}");
+
+        GAME_WINDOW_FACTORX =  GAME_WINDOW_WIDTH / Convert.ToSingle(CAMERA_WIDTH);
+        GAME_WINDOW_FACTORY =  GAME_WINDOW_HEIGHT / Convert.ToSingle(CAMERA_HEIGHT);
+        Debug.LogWarning($"Window res factor is: {GAME_WINDOW_FACTORX}:{GAME_WINDOW_FACTORY}");
+        
+
         //set up borders
         top = new BorderPoint( 0, 0, 0);
         bottom = new BorderPoint(CAMERA_HEIGHT, 0, 0);
@@ -79,7 +96,7 @@ public class WebCamera : MonoBehaviour
         right = new BorderPoint(0, 0, 0);
         
         laserDetectorCoroutine = LaserPointerPositionUpdaterProcess();
-        //StartLaserDetection();
+        //StartLaserDetection(); //we dont start it here now
     }
 
     void ConfigureWebcam(int width, int height, int fps)
@@ -129,18 +146,18 @@ public class WebCamera : MonoBehaviour
                 Debug.Log($"Mouse click at [{screenPosition.x}, {screenPosition.y}]");
                 if (firstClick)
                 {
-                    restrictionTopLeft.x = Convert.ToInt32(screenPosition.x);
-                    restrictionTopLeft.y = Convert.ToInt32(screenPosition.y);
+                    restrictionTopLeft.x = Convert.ToInt32(screenPosition.x / GAME_WINDOW_FACTORX);
+                    restrictionTopLeft.y = Convert.ToInt32(screenPosition.y / GAME_WINDOW_FACTORY);
                     firstClick = false;
                 }
                 else
                 {
-                    restrictionBottomRight.x = Convert.ToInt32(screenPosition.x);
-                    restrictionBottomRight.y = Convert.ToInt32(screenPosition.y);
+                    restrictionBottomRight.x = Convert.ToInt32(screenPosition.x / GAME_WINDOW_FACTORX);
+                    restrictionBottomRight.y = Convert.ToInt32(screenPosition.y / GAME_WINDOW_FACTORY);
                     isCalibrating = false;
                     
-                    //calculate factors
-                    var restrictedZoneHeight = Mathf.Abs(restrictionTopLeft.y - restrictionBottomRight.y); //height funguje
+                    //calculate factors of camera resolution and selected area resolution
+                    var restrictedZoneHeight = Mathf.Abs(restrictionTopLeft.y - restrictionBottomRight.y);
                     var restrictedZoneWidth = Mathf.Abs(restrictionTopLeft.x - restrictionBottomRight.x);
                     factorY =  Convert.ToSingle(CAMERA_HEIGHT) / restrictedZoneHeight;
                     factorX =  Convert.ToSingle(CAMERA_WIDTH) / restrictedZoneWidth;
@@ -232,8 +249,8 @@ public class WebCamera : MonoBehaviour
         var centerX = (left.GetPos() + right.GetPos()) / 2;
         var centerY = (top.GetPos() + bottom.GetPos()) / 2;
 
-        var transformedY = Mathf.Max(centerY - restrictionBottomRight.y, 0) * factorY;
-        var transformedX = Mathf.Max(centerX - restrictionTopLeft.x, 0) * factorX;
+        var transformedY = Mathf.Max(centerY - restrictionBottomRight.y, 0) * factorY * GAME_WINDOW_FACTORY;
+        var transformedX = Mathf.Max(centerX - restrictionTopLeft.x, 0) * factorX * GAME_WINDOW_FACTORX;
         
         markerSprite.transform.position = new Vector3(transformedX, transformedY, 0);
     }
