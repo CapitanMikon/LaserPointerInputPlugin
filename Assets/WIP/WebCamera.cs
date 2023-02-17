@@ -141,7 +141,9 @@ public class WebCamera : MonoBehaviour
                     
                     //calculate factors
                     var restrictedZoneHeight = Mathf.Abs(restrictionTopLeft.y - restrictionBottomRight.y); //height funguje
+                    var restrictedZoneWidth = Mathf.Abs(restrictionTopLeft.x - restrictionBottomRight.x);
                     factorY =  Convert.ToSingle(CAMERA_HEIGHT) / restrictedZoneHeight;
+                    factorX =  Convert.ToSingle(CAMERA_WIDTH) / restrictedZoneWidth;
 
                     Debug.LogWarning($"Factor is {factorX}:{factorY}");
                     Debug.Log("Calibrating ended.");
@@ -229,7 +231,11 @@ public class WebCamera : MonoBehaviour
         Debug.Log("Marker was updated!");
         var centerX = (left.GetPos() + right.GetPos()) / 2;
         var centerY = (top.GetPos() + bottom.GetPos()) / 2;
-        markerSprite.transform.position = new Vector3(centerX, centerY * factorY - (restrictionTopLeft.y - restrictionBottomRight.y), 0);
+
+        var transformedY = Mathf.Max(centerY - restrictionBottomRight.y, 0) * factorY;
+        var transformedX = Mathf.Max(centerX - restrictionTopLeft.x, 0) * factorX;
+        
+        markerSprite.transform.position = new Vector3(transformedX, transformedY, 0);
     }
 
     private void ResetMarkerImagePos()
