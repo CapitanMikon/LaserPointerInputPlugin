@@ -11,13 +11,8 @@ public class WebCamera : MonoBehaviour
     private Color32[] webCamPixels;
     
     private IEnumerator laserDetectorCoroutine;
-
-    //source of const: https://stackoverflow.com/questions/596216/formula-to-determine-perceived-brightness-of-rgb-color
-    private const double R_VALUE = 0.299;
-    private const double G_VALUE = 0.587;
-    private const double B_VALUE = 0.114;
-    private const double PIXEL_LUMINANCE_THRESHOLD = 100;
-    private const int EMPTY_FRAMES_THRESHOLD = 5;
+    
+    private const int EMPTY_FRAMES_THRESHOLD = 10;
 
     private int CAMERA_WIDTH = -1;
     private int CAMERA_HEIGHT = -1;
@@ -180,16 +175,16 @@ public class WebCamera : MonoBehaviour
 
             for (int i = 0; i < webCamPixels.Length; i++)
             {
-                var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
+                //var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
                 int currentX = i % CAMERA_WIDTH;
                 int currentY = i / CAMERA_WIDTH;
                 if (currentX >= restrictionTopLeft.x && currentX <= restrictionBottomRight.x
                     && currentY >= restrictionBottomRight.y && currentY <= restrictionTopLeft.y)//is within restrictions
                 {
-                    if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
+                    if (webCamPixels[i].r >= 150 && webCamPixels[i].g < 100 && webCamPixels[i].b < 100)
                     {
                         //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
-                        UpdateBorders(currentX, currentY, pixelLuminance);
+                        UpdateBorders(currentX, currentY, 0);
                         updateMarker = true;
                     }
                 }
