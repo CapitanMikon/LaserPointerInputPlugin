@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class VirtualMouse : MonoBehaviour
@@ -11,25 +9,14 @@ public class VirtualMouse : MonoBehaviour
     public int maxWidth;
     public int maxHeight;
 
-    private int x;
-    private int y;
+    private float x;
+    private float y;
     
     void Awake()
     {
         if (instance == null)
         {
             instance = this;
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            DebugText.instance.ResetText();
-            MouseOperations.SetCursorPosition(Mathf.Abs(0),Mathf.Abs(0));
-            MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftUp | MouseOperations.MouseEventFlags.LeftDown);
         }
     }
 
@@ -45,16 +32,23 @@ public class VirtualMouse : MonoBehaviour
 
     public void SetMouseClickPositions(float x, float y)
     {
-        this.x = Convert.ToInt32(x);
-        this.y = Convert.ToInt32(y);
+        this.x = x;
+        this.y = y;
     }
 
     public void PerformLeftMouseClick()
     {
+        Ray ray = Camera.main.ScreenPointToRay(new Vector3(x, y, 0));
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 100))
+        {
+            if (hit.collider.TryGetComponent(out ILaserInteractable laserInteractable))
+            {
+                laserInteractable.OnClick();
+            }
+        }
         DebugText.instance.ResetText();
-        MouseOperations.SetCursorPosition(Mathf.Abs(0-x),Mathf.Abs(maxHeight-y));
-        MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftUp | MouseOperations.MouseEventFlags.LeftDown);
-        DebugText.instance.AddText($"Mouse PRESSED at: {MouseOperations.GetCursorPosition().X},{MouseOperations.GetCursorPosition().Y}");
+        DebugText.instance.AddText($"Mouse PRESSED at: {x},{y}");
 
     }
 

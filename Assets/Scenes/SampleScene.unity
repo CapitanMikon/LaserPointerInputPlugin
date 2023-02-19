@@ -1142,7 +1142,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  PROJECTOR_DISPLAY_ID: 0
+  PROJECTOR_DISPLAY_ID: 1
   markerSprite: {fileID: 717962159}
 --- !u!4 &1180169654
 Transform:
