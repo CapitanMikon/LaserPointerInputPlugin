@@ -74,8 +74,8 @@ public class WebCamera : MonoBehaviour
         {
             webCamTexture = new WebCamTexture(devices[0].name);
             webcamImageHolder.texture = webCamTexture;
-            //ConfigureWebcam(1920, 1080, 60);
-            ConfigureWebcam(1280, 720, 30);
+            ConfigureWebcam(1920, 1080, 30);
+            //ConfigureWebcam(1280, 720, 30);
             webCamTexture.Play();
         }
         LogWebcamInfo();
