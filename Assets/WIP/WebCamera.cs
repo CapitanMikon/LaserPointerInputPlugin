@@ -1,11 +1,15 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class WebCamera : MonoBehaviour
 {
     [SerializeField] private RawImage webcamImageHolder;
+
+    [SerializeField] private UnityEvent OnCalibrationDone; 
+    [SerializeField] private UnityEvent OnLaserInputRegistered; 
     
     private WebCamTexture webCamTexture;
     private Color32[] webCamPixels;
@@ -23,6 +27,7 @@ public class WebCamera : MonoBehaviour
     private int CAMERA_HEIGHT = -1;
     private int CAMERA_FPS = -1;
 
+    [SerializeField] private int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
     
     //scaling from game to camera
     private int GAME_WINDOW_WIDTH = -1;
@@ -55,6 +60,7 @@ public class WebCamera : MonoBehaviour
 
     void Start()
     {
+        VirtualMouse.instance.ShowCameraFeed();
         ResetMarkerImagePos();
         
         WebCamDevice[] devices = WebCamTexture.devices;
@@ -68,8 +74,8 @@ public class WebCamera : MonoBehaviour
         {
             webCamTexture = new WebCamTexture(devices[0].name);
             webcamImageHolder.texture = webCamTexture;
-            ConfigureWebcam(1920, 1080, 60);
-            //ConfigureWebcam(1280, 720, 30);
+            //ConfigureWebcam(1920, 1080, 60);
+            ConfigureWebcam(1280, 720, 30);
             webCamTexture.Play();
         }
         LogWebcamInfo();
@@ -77,11 +83,17 @@ public class WebCamera : MonoBehaviour
         //get real camera/game width and height
         CAMERA_WIDTH = webCamTexture.requestedWidth;
         CAMERA_HEIGHT = webCamTexture.requestedHeight;
-
-        GAME_WINDOW_HEIGHT = Display.main.systemHeight;
-        GAME_WINDOW_WIDTH = Display.main.systemWidth;
+        
+        //GAME_WINDOW_HEIGHT = Display.main.systemHeight;
+        GAME_WINDOW_HEIGHT = Display.displays[PROJECTOR_DISPLAY_ID].systemHeight;
+        //GAME_WINDOW_WIDTH = Display.main.systemWidth;
+        GAME_WINDOW_WIDTH = Display.displays[PROJECTOR_DISPLAY_ID].systemWidth;;
+        VirtualMouse.instance.maxWidth = GAME_WINDOW_WIDTH;
+        VirtualMouse.instance.maxHeight = GAME_WINDOW_HEIGHT;
         
         Debug.LogWarning($"Window res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}");
+        DebugText.instance.AddText($"\nWindow res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}");
+        DebugText.instance.AddText($"\nScreen res: {Screen.currentResolution}");
 
         GAME_WINDOW_FACTORX =  GAME_WINDOW_WIDTH / Convert.ToSingle(CAMERA_WIDTH);
         GAME_WINDOW_FACTORY =  GAME_WINDOW_HEIGHT / Convert.ToSingle(CAMERA_HEIGHT);
@@ -121,7 +133,9 @@ public class WebCamera : MonoBehaviour
 
     void LogWebcamInfo()
     {
-        Debug.Log($"Current camera configuration:\nFPS: {webCamTexture.requestedFPS}\nRes: {webCamTexture.width}x{webCamTexture.height}");
+        Debug.Log($"\nCurrent camera configuration:\nFPS: {webCamTexture.requestedFPS}\nRes: {webCamTexture.width}x{webCamTexture.height}");
+        DebugText.instance.AddText(
+            $"Current camera configuration:\nFPS: {webCamTexture.requestedFPS}\nRes: {webCamTexture.width}x{webCamTexture.height}");
     }
 
     private void Update()
@@ -155,7 +169,7 @@ public class WebCamera : MonoBehaviour
                     restrictionBottomRight.x = Convert.ToInt32(screenPosition.x / GAME_WINDOW_FACTORX);
                     restrictionBottomRight.y = Convert.ToInt32(screenPosition.y / GAME_WINDOW_FACTORY);
                     isCalibrating = false;
-                    
+                    OnCalibrationDone?.Invoke();
                     //calculate factors of camera resolution and selected area resolution
                     var restrictedZoneHeight = Mathf.Abs(restrictionTopLeft.y - restrictionBottomRight.y);
                     var restrictedZoneWidth = Mathf.Abs(restrictionTopLeft.x - restrictionBottomRight.x);
@@ -251,6 +265,9 @@ public class WebCamera : MonoBehaviour
 
         var transformedY = Mathf.Max(centerY - restrictionBottomRight.y, 0) * factorY * GAME_WINDOW_FACTORY;
         var transformedX = Mathf.Max(centerX - restrictionTopLeft.x, 0) * factorX * GAME_WINDOW_FACTORX;
+        
+        VirtualMouse.instance.SetMouseClickPositions(transformedX, transformedY);
+        OnLaserInputRegistered?.Invoke();
         
         markerSprite.transform.position = new Vector3(transformedX, transformedY, 0);
     }
