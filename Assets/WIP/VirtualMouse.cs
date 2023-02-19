@@ -19,18 +19,6 @@ public class VirtualMouse : MonoBehaviour
             instance = this;
         }
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            DebugText.instance.ResetText();
-            MouseOperations.SetCursorPosition(Mathf.Abs(0),Mathf.Abs(0));
-            MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftUp | MouseOperations.MouseEventFlags.LeftDown);
-        }
-    }
-
     public void HideCameraFeed()
     {
         cameraFeed.SetActive(false);
@@ -49,10 +37,10 @@ public class VirtualMouse : MonoBehaviour
 
     public void PerformLeftMouseClick()
     {
-        DebugText.instance.ResetText();
+        DebugText.instance.ResetText(DebugText.DebugTextGroup.MouseClickPos);
         MouseOperations.SetCursorPosition(Mathf.Abs(0-x),Mathf.Abs(maxHeight-y));
         MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftUp | MouseOperations.MouseEventFlags.LeftDown);
-        DebugText.instance.AddText($"Mouse PRESSED at: {MouseOperations.GetCursorPosition().X},{MouseOperations.GetCursorPosition().Y}");
+        DebugText.instance.AddText($"Mouse PRESSED at: {MouseOperations.GetCursorPosition().X},{MouseOperations.GetCursorPosition().Y}", DebugText.DebugTextGroup.MouseClickPos);
 
     }
 
