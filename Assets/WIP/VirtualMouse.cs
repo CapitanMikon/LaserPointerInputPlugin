@@ -47,8 +47,8 @@ public class VirtualMouse : MonoBehaviour
                 laserInteractable.OnClick();
             }
         }
-        DebugText.instance.ResetText();
-        DebugText.instance.AddText($"Mouse PRESSED at: {x},{y}");
+        DebugText.instance.ResetText(DebugText.DebugTextGroup.MouseClickPos);
+        DebugText.instance.AddText($"Mouse PRESSED at: {x},{y}", DebugText.DebugTextGroup.MouseClickPos);
 
     }
 
