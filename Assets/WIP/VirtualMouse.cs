@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class VirtualMouse : MonoBehaviour
 {
@@ -11,6 +14,13 @@ public class VirtualMouse : MonoBehaviour
 
     private float x;
     private float y;
+    
+    
+    //GUI raycast
+    [SerializeField] private GraphicRaycaster guiRaycaster;
+    private List<RaycastResult> guiRaycastResults = new List<RaycastResult>();
+    private PointerEventData pointerEventData;
+    [SerializeField] private EventSystem eventSystem;
     
     void Awake()
     {
@@ -38,17 +48,47 @@ public class VirtualMouse : MonoBehaviour
 
     public void PerformLeftMouseClick()
     {
-        Ray ray = Camera.main.ScreenPointToRay(new Vector3(x, y, 0));
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, 100))
+        pointerEventData = new PointerEventData(eventSystem);
+        //Set the Pointer Event Position to that of the game object
+        pointerEventData.position = new Vector2(x,y);
+ 
+        //Create a list of Raycast Results
+        guiRaycastResults.Clear();
+        //Raycast using the Graphics Raycaster and mouse click position
+        guiRaycaster.Raycast(pointerEventData, guiRaycastResults);
+
+        if (guiRaycastResults.Count > 0)
         {
-            if (hit.collider.TryGetComponent(out ILaserInteractable laserInteractable))
+            string s = "";
+            foreach (var r in guiRaycastResults)
             {
-                laserInteractable.OnClick();
+                r.gameObject.TryGetComponent(out Button button);
+                if (button != null)
+                {
+                    button.onClick?.Invoke();
+                    s+= $"{r.gameObject.name}, ";
+                    break;
+                }
             }
+            Debug.LogWarning($"Hit GUI:[ {s} ]");
         }
-        DebugText.instance.ResetText(DebugText.DebugTextGroup.MouseClickPos);
-        DebugText.instance.AddText($"Mouse PRESSED at: {x},{y}", DebugText.DebugTextGroup.MouseClickPos);
+        
+        
+        //
+        if (guiRaycastResults.Count == 0)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(new Vector3(x, y, 0));
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 100))
+            {
+                if (hit.collider.TryGetComponent(out ILaserInteractable laserInteractable))
+                {
+                    laserInteractable.OnLaserClickEvent();
+                }
+            }
+            DebugText.instance.ResetText(DebugText.DebugTextGroup.MouseClickPos);
+            DebugText.instance.AddText($"Mouse PRESSED at: {x},{y}", DebugText.DebugTextGroup.MouseClickPos);
+        }
 
     }
 

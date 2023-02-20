@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface ILaserInteractable
 {
-    void OnClick();
+    void OnLaserClickEvent();
 }

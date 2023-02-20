@@ -26,9 +26,21 @@ public class Box : MonoBehaviour, ILaserInteractable
         }
     }
 
-    public void OnClick()
+    public void OnLaserClickEvent()
     {
         rb.useGravity = true;
-        rb.AddExplosionForce(force, transform.position, 1f, 0f, ForceMode.Impulse);
+        rb.AddForce(Vector3.Normalize(transform.position - Camera.main.transform.position) * force);
+        
+        //doesnt work properly
+        //rb.AddExplosionForce(force, transform.position + Vector3.Normalize(transform.position + Camera.main.transform.position), 1f, 0f, ForceMode.Impulse);
+    }
+    
+
+    public void ResetBox()
+    {
+        rb.useGravity = false;
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        transform.position = startingPos;
     }
 }
