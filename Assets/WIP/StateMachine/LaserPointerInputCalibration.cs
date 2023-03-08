@@ -16,6 +16,23 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
 
     private WindowData _windowData;
     private CameraData _cameraData;
+    
+    private Vector2[] real = new Vector2[4]{
+        new Vector2(0, 0),
+        new Vector2(0, 0),
+        new Vector2(0, 0),
+        new Vector2(0, 0)
+    };
+
+    // The four corners of the destination image
+    private Vector2[] ideal = new Vector2[4]{
+        new Vector2(0, 0),
+        new Vector2(0, 0),
+        new Vector2(0, 0),
+        new Vector2(0, 0)
+    };
+
+    private int clickCounter;
 
     public override void EnterState(LaserPointerInputManager laserPointerInputManager)
     {
@@ -35,27 +52,29 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
             {
                 Vector2 screenPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
                 Debug.Log($"Mouse click at [{screenPosition.x}, {screenPosition.y}]");
-                if (firstClick)
+                switch (clickCounter)
                 {
-                    restrictionTopLeft.x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
-                    restrictionTopLeft.y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
-                    firstClick = false;
+                    case 0:
+                        real[0].x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
+                        real[0].y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
+                        break;
+                    case 1:
+                        real[1].x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
+                        real[1].y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
+                        break;
+                    case 2:
+                        real[2].x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
+                        real[2].y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
+                        break;
+                    case 3:
+                        real[3].x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
+                        real[3].y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
+                        Debug.Log("Calibrating ended.");
+                        EndCalibration();
+                        break;
                 }
-                else
-                {
-                    restrictionBottomRight.x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
-                    restrictionBottomRight.y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
-                    isCalibrating = false;
-                    _laserPointerInputManager.InvokeOnLaserPointerCalibrationEndedEvent();
-                    //calculate factors of camera resolution and selected area resolution
-                    var restrictedZoneHeight = Mathf.Abs(restrictionTopLeft.y - restrictionBottomRight.y);
-                    var restrictedZoneWidth = Mathf.Abs(restrictionTopLeft.x - restrictionBottomRight.x);
-                    factorY =  Convert.ToSingle(_cameraData.CAMERA_HEIGHT) / restrictedZoneHeight;
-                    factorX =  Convert.ToSingle(_cameraData.CAMERA_WIDTH) / restrictedZoneWidth;
 
-                    Debug.LogWarning($"Scaling factor is {factorX}:{factorY}");
-                    EndCalibration();
-                }
+                clickCounter++;
             }
             else if (Input.GetMouseButtonDown(2))
             {
@@ -72,8 +91,22 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
     {
         isCalibrating = false;
         firstClick = true;
+        clickCounter = 0;
         _windowData = _laserPointerInputManager.GetWindowData();
         _cameraData = _laserPointerInputManager.GetCameraData();
+        
+        ideal[0].x = 0;
+        ideal[0].y = 0;
+        
+        ideal[1].x = _windowData.GAME_WINDOW_WIDTH;
+        ideal[1].y = 0;
+        
+        ideal[2].x = _windowData.GAME_WINDOW_WIDTH;
+        ideal[2].y = _windowData.GAME_WINDOW_HEIGHT;
+        
+        ideal[3].x = 0;
+        ideal[3].y = _windowData.GAME_WINDOW_HEIGHT;
+        
 
     }
 
@@ -81,7 +114,7 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
     {
         VirtualMouse.instance.ShowCameraFeed();
         Debug.Log("Calibrating started.");
-        Debug.Log("Please select 2 points TL and BR.");
+        Debug.Log("Please select 4 starting from points BL, BR, TR, TL.");
         isCalibrating = true;
     }
 
@@ -114,7 +147,9 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
             restrictionTopLeft = restrictionTopLeft,
             restrictionBottomRight = restrictionBottomRight,
             factorX = factorX,
-            factorY = factorY
+            factorY = factorY,
+            real = real,
+            ideal = ideal,
         };
 
         _laserPointerInputManager.SetCalibrationData(_calibrationData);

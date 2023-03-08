@@ -80,8 +80,8 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
                 var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
                 int currentX = i % _cameraData.CAMERA_WIDTH;
                 int currentY = i / _cameraData.CAMERA_WIDTH;
-                if (currentX >= _callibrationData.restrictionTopLeft.x && currentX <= _callibrationData.restrictionBottomRight.x
-                                                                      && currentY >= _callibrationData.restrictionBottomRight.y && currentY <= _callibrationData.restrictionTopLeft.y)//is within restrictions
+                if (true)//(currentX >= _callibrationData.restrictionTopLeft.x && currentX <= _callibrationData.restrictionBottomRight.x
+                   //                                                   && currentY >= _callibrationData.restrictionBottomRight.y && currentY <= _callibrationData.restrictionTopLeft.y)//is within restrictions
                 {
                     if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
                     {
@@ -158,10 +158,12 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         var transformedY = Mathf.Max(centerY - _callibrationData.restrictionBottomRight.y, 0) * _callibrationData.factorY * _windowData.GAME_WINDOW_FACTORY;
         var transformedX = Mathf.Max(centerX - _callibrationData.restrictionTopLeft.x, 0) * _callibrationData.factorX * _windowData.GAME_WINDOW_FACTORX;
         
-        VirtualMouse.instance.SetMouseClickPositions(transformedX, transformedY);
+        var result = Project(new Vector2(centerX, centerY));
+        
+        VirtualMouse.instance.SetMouseClickPositions(result.x, result.y);
         _laserPointerInputManager.InvokeOnLaserPointerInputDetectedEvent();
 
-        _laserPointerInputManager.UpdateMarkerSpritePosition(transformedX, transformedY);
+        _laserPointerInputManager.UpdateMarkerSpritePosition(result.x, result.y);
     }
 
     void ResetBorders()
@@ -171,5 +173,89 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         
         (left.value, left.luminance) = (_cameraData.CAMERA_WIDTH, -1);
         (right.value, right.luminance) = ( 0, -1);
+    }
+    float Determinant(float a, float b, float c, float d)
+    {
+        return a * d - b * c;
+    }
+
+    Vector2 Solve(Vector2[] A, Vector2 B)
+    {
+        var det = Determinant(A[0][0], A[1][0], A[0][1], A[1][1]);
+        var x = Determinant(B[0], A[1][0], B[1], A[1][1]) / det;
+        var y = Determinant(A[0][0], B[0], A[0][1], B[1]) / det;
+        return new Vector2(x,y);
+    }
+
+    Vector3 Triangle(Vector2[] pts, Vector2 p)
+    {
+        Vector2 a = new Vector2(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]);
+        Vector2 b = new Vector2(pts[2][0] - pts[0][0], pts[2][1] - pts[0][1]);
+        Vector2 c = new Vector2(p[0] - pts[0][0], p[1] - pts[0][1]);
+
+        Vector2[] ab = new Vector2[2]
+        {
+            a,
+            b
+        };
+        
+        Vector2 d = Solve(ab,c);
+        return new Vector3(1 - d[0] - d[1], d[0], d[1]);
+    }
+
+    Vector2 Dot(Vector2[] pts, Vector3 k)
+    {
+        return new Vector2(pts[0][0] * k[0] + pts[1][0] * k[1] + pts[2][0] * k[2],
+            pts[0][1] * k[0] + pts[1][1] * k[1] + pts[2][1] * k[2]);
+    }
+
+    Vector2 Round(Vector2 t)
+    {
+        return new Vector2(Convert.ToInt32(t.x), Convert.ToInt32(t.y));
+    }
+
+    Vector2 Project(Vector2 pos)
+    {
+        var i = 0;
+        var j = 2;
+        //Vector2 n = new Vector2(real[i].y - real[j].y, real[j].x - real[i].x);
+        Vector2 v = new Vector2(_callibrationData.real[i].x - _callibrationData.real[j].x, _callibrationData.real[i].y - _callibrationData.real[j].y);
+        //var q = n.x * real[i].x + n.y * real[i].y;
+        var q = (v.y * _callibrationData.real[j].x - v.x * _callibrationData.real[j].y) * -1;
+
+        if (v.y * pos.x -v.x * pos.y + q >= 0)
+        {
+            Vector2[] pts = new Vector2[3]{
+                _callibrationData.real[0],
+                _callibrationData.real[2],
+                _callibrationData.real[3]
+            };
+            Vector2[] pts2 = new Vector2[3]{
+                _callibrationData.ideal[0],
+                _callibrationData.ideal[2],
+                _callibrationData.ideal[3]
+            };
+            var k = Triangle(pts,pos);
+            //DebugText.instance.ResetText(DebugText.DebugTextGroup.Side);
+            //DebugText.instance.AddText("Top",DebugText.DebugTextGroup.Side);
+            return Dot(pts2,k);
+        }
+        else
+        {
+            Vector2[] pts = new Vector2[3]{
+                _callibrationData.real[0],
+                _callibrationData.real[2],
+                _callibrationData.real[1]
+            };
+            Vector2[] pts2 = new Vector2[3]{
+                _callibrationData.ideal[0],
+                _callibrationData.ideal[2],
+                _callibrationData.ideal[1]
+            };
+            //DebugText.instance.ResetText(DebugText.DebugTextGroup.Side);
+            //DebugText.instance.AddText("Bot",DebugText.DebugTextGroup.Side);
+            var k = Triangle(pts,pos);
+            return Dot(pts2,k);
+        }
     }
 }

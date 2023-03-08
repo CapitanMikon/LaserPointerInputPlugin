@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public struct CallibrationData
 {
     public Pair restrictionTopLeft;
@@ -5,6 +7,9 @@ public struct CallibrationData
 
     public float factorX;
     public float factorY;
+
+    public Vector2[] real;
+    public Vector2[] ideal;
 }
 
 public struct BorderPoint
