@@ -1303,6 +1303,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1180169654}
   - component: {fileID: 1180169653}
+  - component: {fileID: 1180169655}
   m_Layer: 0
   m_Name: LaserInputManager
   m_TagString: Untagged
@@ -1317,7 +1318,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1180169652}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6ffc53998a063964aa6b786b3849b414, type: 3}
   m_Name: 
@@ -1370,6 +1371,52 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1180169655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1180169652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f000a2d952f60f489ac6bac77eaed93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  webcamImageHolder: {fileID: 1818747276}
+  OnCalibrationDone:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1522960620}
+        m_TargetAssemblyTypeName: VirtualMouse, Assembly-CSharp
+        m_MethodName: HideCameraFeed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnLaserInputRegistered:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1522960620}
+        m_TargetAssemblyTypeName: VirtualMouse, Assembly-CSharp
+        m_MethodName: PerformLeftMouseClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  webCamTexture: {fileID: 0}
+  PROJECTOR_DISPLAY_ID: 1
+  markerSprite: {fileID: 717962159}
 --- !u!1 &1522960618
 GameObject:
   m_ObjectHideFlags: 0

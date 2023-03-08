@@ -101,11 +101,11 @@ public class WebCamera : MonoBehaviour
         
 
         //set up borders
-        top = new BorderPoint( 0, 0, 0);
+        /*top = new BorderPoint( 0, 0, 0);
         bottom = new BorderPoint(CAMERA_HEIGHT, 0, 0);
         
         left = new BorderPoint(CAMERA_WIDTH, 0, 0);
-        right = new BorderPoint(0, 0, 0);
+        right = new BorderPoint(0, 0, 0);*/
         
         laserDetectorCoroutine = LaserPointerPositionUpdaterProcess();
         //StartLaserDetection(); //we dont start it here now
@@ -203,7 +203,7 @@ public class WebCamera : MonoBehaviour
                     if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
                     {
                         //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
-                        UpdateBorders(currentX, currentY, pixelLuminance);
+                        //UpdateBorders(currentX, currentY, pixelLuminance);
                         updateMarker = true;
                     }
                 }
@@ -221,7 +221,7 @@ public class WebCamera : MonoBehaviour
         }
     }
 
-    private void UpdateBorders(int x, int y, double luminance)
+    /*private void UpdateBorders(int x, int y, double luminance)
     {
         //top
         if (top.GetLuminance() < luminance && y > top.GetPos())
@@ -250,7 +250,7 @@ public class WebCamera : MonoBehaviour
             right.SetPos(x);
             right.SetLuminance(luminance);
         }
-    }
+    }*/
 
     /*private static double CalculateLuminance(Color32 color32)
     {
@@ -260,8 +260,8 @@ public class WebCamera : MonoBehaviour
     private void UpdateMarkerImage()
     {
         Debug.Log("Marker was updated!");
-        var centerX = (left.GetPos() + right.GetPos()) / 2;
-        var centerY = (top.GetPos() + bottom.GetPos()) / 2;
+        var centerX = (left.value + right.value) / 2;
+        var centerY = (top.value + bottom.value) / 2;
 
         var transformedY = Mathf.Max(centerY - restrictionBottomRight.y, 0) * factorY * GAME_WINDOW_FACTORY;
         var transformedX = Mathf.Max(centerX - restrictionTopLeft.x, 0) * factorX * GAME_WINDOW_FACTORX;
@@ -280,15 +280,15 @@ public class WebCamera : MonoBehaviour
 
     void ResetBorders()
     {
-        top.SetValues(0, -1);
-        bottom.SetValues(CAMERA_HEIGHT, -1);
+        (top.value, top.luminance) =(0, -1);
+        (bottom.value, bottom.luminance) = (CAMERA_HEIGHT, -1);
         
-        left.SetValues(CAMERA_WIDTH, -1);
-        right.SetValues( 0, -1);
+        (left.value, left.luminance) = (CAMERA_WIDTH, -1);
+        (right.value, right.luminance) = ( 0, -1);
     }
 }
 
-public class BorderPoint
+/*public class BorderPoint
 {
     private double luminance;
     private int value;
@@ -339,10 +339,10 @@ public class BorderPoint
     {
         this.posIn2dArray = posIn2dArray;
     }
-}
+}*/
 
-struct Pair
+/*struct Pair
 {
     public int x;
     public int y;
-}
+}*/

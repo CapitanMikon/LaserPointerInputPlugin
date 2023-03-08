@@ -32,11 +32,13 @@ public class VirtualMouse : MonoBehaviour
 
     public void HideCameraFeed()
     {
+        Debug.Log("CameraFeed OFF");
         cameraFeed.SetActive(false);
     }
     
     public void ShowCameraFeed()
     {
+        Debug.Log("CameraFeed ON");
         cameraFeed.SetActive(true);
     }
 
