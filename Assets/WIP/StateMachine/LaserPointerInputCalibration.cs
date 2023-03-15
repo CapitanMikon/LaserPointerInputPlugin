@@ -76,13 +76,13 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
 
                 clickCounter++;
             }
-            else if (Input.GetMouseButtonDown(2))
+            else if (Input.GetKeyDown(KeyCode.R))
             {
                 RestartCalibration();
             }
             else if (Input.GetKeyDown(KeyCode.Escape))
             {
-                CancelCalibration();
+                //CancelCalibration();
             }
         }
     }

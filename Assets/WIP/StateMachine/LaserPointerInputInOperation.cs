@@ -48,13 +48,13 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
 
     public override void UpdateState()
     {
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.F1))
         {
             VirtualMouse.instance.ShowCameraFeed();
-        }else if(Input.GetKeyDown(KeyCode.H))
+        }else if(Input.GetKeyDown(KeyCode.F2))
         {
             VirtualMouse.instance.HideCameraFeed();
-        }else if (Input.GetKeyDown(KeyCode.R))
+        }else if (Input.GetKeyDown(KeyCode.F5))
         {
             _laserPointerInputManager.SwitchState(_laserPointerInputManager.calibrationState);
         }
