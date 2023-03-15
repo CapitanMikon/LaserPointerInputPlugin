@@ -78,8 +78,8 @@ public class WebCamera : MonoBehaviour
         CAMERA_WIDTH = webCamTexture.requestedWidth;
         CAMERA_HEIGHT = webCamTexture.requestedHeight;
 
-        GAME_WINDOW_HEIGHT = Display.main.systemHeight;
-        GAME_WINDOW_WIDTH = Display.main.systemWidth;
+        GAME_WINDOW_HEIGHT = Display.displays[1].systemHeight;
+        GAME_WINDOW_WIDTH = Display.displays[1].systemWidth;
         
         Debug.LogWarning($"Window res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}");
 
