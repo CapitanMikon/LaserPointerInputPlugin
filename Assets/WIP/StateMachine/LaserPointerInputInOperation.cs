@@ -256,7 +256,7 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         var a2 = a1 - realAvg;
         var a3 = a2 / realStd;
 
-        var d = 0.5f;
+        var d = 1f;
         
         
         // q @ real.T
