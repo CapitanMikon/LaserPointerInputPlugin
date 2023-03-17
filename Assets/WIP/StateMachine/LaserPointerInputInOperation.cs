@@ -31,7 +31,13 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
     private CallibrationData _callibrationData;
     private CameraData _cameraData;
     private WindowData _windowData;
+
+    private Vector2 idealAvg;
+    private Vector2 idealStd;
     
+    private Vector2 realAvg;
+    private Vector2 realStd;
+
     public override void EnterState(LaserPointerInputManager laserPointerInputManager)
     {
         Debug.Log("STATE: OPERATION");
@@ -44,6 +50,75 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         
         ResetBorders();
         StartLaserDetection();
+        SetUp();
+    }
+
+    private void SetUp()
+    {
+        //
+        
+        /*_callibrationData.ideal = new Vector2[4]{
+            new Vector2(0, 0),
+            new Vector2(200, 0),
+            new Vector2(200, 200),
+            new Vector2(0, 200)
+        };
+        
+        _callibrationData.real = new Vector2[4]{
+            new Vector2(300, 100),
+            new Vector2(600, 200),
+            new Vector2(500, 400),
+            new Vector2(350, 300)
+        };*/
+        
+        //
+        idealAvg = new Vector2(0, 0);
+        for (int i = 0; i < _callibrationData.ideal.Length; i++)
+        {
+            idealAvg += _callibrationData.ideal[i];
+
+            realAvg += _callibrationData.real[i];
+        }
+
+        idealAvg /= _callibrationData.ideal.Length;
+        realAvg /= _callibrationData.real.Length;
+        
+        //calculate std
+
+        var sodIdealX = 0.0f;
+        var sodIdealY = 0.0f;
+        
+        var sodRealX = 0.0f;
+        var sodRealY = 0.0f;
+        for (int i = 0; i < _callibrationData.ideal.Length; i++)
+        {
+            sodIdealX += _callibrationData.ideal[i].x * _callibrationData.ideal[i].x;
+            sodIdealY += _callibrationData.ideal[i].y * _callibrationData.ideal[i].y;
+            
+            sodRealX += _callibrationData.real[i].x * _callibrationData.real[i].x;
+            sodRealY += _callibrationData.real[i].y * _callibrationData.real[i].y;
+        }
+
+        float sodAvgIdealX = sodIdealX / _callibrationData.ideal.Length;
+        float sodAvgIdealY = sodIdealY / _callibrationData.ideal.Length;
+        
+        float sodAvgRealX = sodRealX / _callibrationData.real.Length;
+        float sodAvgRealY = sodRealY / _callibrationData.real.Length;
+
+        idealStd = new Vector2(Mathf.Sqrt(sodAvgIdealX - (idealAvg.x*idealAvg.x)), Mathf.Sqrt(sodAvgIdealY - (idealAvg.y*idealAvg.y)));
+        realStd = new Vector2(Mathf.Sqrt(sodAvgRealX - (realAvg.x*realAvg.x)), Mathf.Sqrt(sodAvgRealY - (realAvg.y*realAvg.y)));
+
+        
+        for (int i = 0; i < _callibrationData.ideal.Length; i++)
+        {
+            var tmp = (_callibrationData.ideal[i] - idealAvg) / idealStd;
+            _callibrationData.ideal[i] = tmp;
+            
+            tmp = (_callibrationData.real[i] - realAvg) / realStd;
+            _callibrationData.real[i] = tmp;
+        }
+        
+        //var test = Project(340, 200);
     }
 
     public override void UpdateState()
@@ -158,7 +233,7 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         var transformedY = Mathf.Max(centerY - _callibrationData.restrictionBottomRight.y, 0) * _callibrationData.factorY * _windowData.GAME_WINDOW_FACTORY;
         var transformedX = Mathf.Max(centerX - _callibrationData.restrictionTopLeft.x, 0) * _callibrationData.factorX * _windowData.GAME_WINDOW_FACTORX;
         
-        var result = Project(new Vector2(centerX, centerY));
+        var result = Project(centerX, centerY);
         
         VirtualMouse.instance.SetMouseClickPositions(result.x, result.y);
         _laserPointerInputManager.InvokeOnLaserPointerInputDetectedEvent();
@@ -174,88 +249,48 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         (left.value, left.luminance) = (_cameraData.CAMERA_WIDTH, -1);
         (right.value, right.luminance) = ( 0, -1);
     }
-    float Determinant(float a, float b, float c, float d)
-    {
-        return a * d - b * c;
-    }
 
-    Vector2 Solve(Vector2[] A, Vector2 B)
+    Vector2 Project(float x, float y)
     {
-        var det = Determinant(A[0][0], A[1][0], A[0][1], A[1][1]);
-        var x = Determinant(B[0], A[1][0], B[1], A[1][1]) / det;
-        var y = Determinant(A[0][0], B[0], A[0][1], B[1]) / det;
-        return new Vector2(x,y);
-    }
+        var a1 = new Vector2(x, y);
+        var a2 = a1 - realAvg;
+        var a3 = a2 / realStd;
 
-    Vector3 Triangle(Vector2[] pts, Vector2 p)
-    {
-        Vector2 a = new Vector2(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]);
-        Vector2 b = new Vector2(pts[2][0] - pts[0][0], pts[2][1] - pts[0][1]);
-        Vector2 c = new Vector2(p[0] - pts[0][0], p[1] - pts[0][1]);
-
-        Vector2[] ab = new Vector2[2]
+        var d = 0.5f;
+        
+        
+        // q @ real.T
+        var mat = new Vector4()
         {
-            a,
-            b
+            x = _callibrationData.real[0].x * a3.x + _callibrationData.real[0].y * a3.y,
+            y = _callibrationData.real[1].x * a3.x + _callibrationData.real[1].y * a3.y,
+            z = _callibrationData.real[2].x * a3.x + _callibrationData.real[2].y * a3.y,
+            w = _callibrationData.real[3].x * a3.x + _callibrationData.real[3].y * a3.y,
+        };
+
+        var mat2 = mat / d;
+        
+        var c = SoftMax(mat2);
+        
+        var p = new Vector2()
+        {
+            x = c.x * _callibrationData.ideal[0].x + c.y * _callibrationData.ideal[1].x + c.z * _callibrationData.ideal[2].x + c.w * _callibrationData.ideal[3].x,
+            y = c.x * _callibrationData.ideal[0].y + c.y * _callibrationData.ideal[1].y + c.z * _callibrationData.ideal[2].y + c.w * _callibrationData.ideal[3].y,
         };
         
-        Vector2 d = Solve(ab,c);
-        return new Vector3(1 - d[0] - d[1], d[0], d[1]);
+        return (p * idealStd) + idealAvg;
     }
 
-    Vector2 Dot(Vector2[] pts, Vector3 k)
+    private Vector4 SoftMax(Vector4 v)
     {
-        return new Vector2(pts[0][0] * k[0] + pts[1][0] * k[1] + pts[2][0] * k[2],
-            pts[0][1] * k[0] + pts[1][1] * k[1] + pts[2][1] * k[2]);
-    }
-
-    Vector2 Round(Vector2 t)
-    {
-        return new Vector2(Convert.ToInt32(t.x), Convert.ToInt32(t.y));
-    }
-
-    Vector2 Project(Vector2 pos)
-    {
-        var i = 0;
-        var j = 2;
-        //Vector2 n = new Vector2(real[i].y - real[j].y, real[j].x - real[i].x);
-        Vector2 v = new Vector2(_callibrationData.real[i].x - _callibrationData.real[j].x, _callibrationData.real[i].y - _callibrationData.real[j].y);
-        //var q = n.x * real[i].x + n.y * real[i].y;
-        var q = (v.y * _callibrationData.real[j].x - v.x * _callibrationData.real[j].y) * -1;
-
-        if (v.y * pos.x -v.x * pos.y + q >= 0)
+        var temp = new Vector4(0.0f,0.0f,0.0f,0.0f);
+        for (int i = 0; i < 4; i++)
         {
-            Vector2[] pts = new Vector2[3]{
-                _callibrationData.real[0],
-                _callibrationData.real[2],
-                _callibrationData.real[3]
-            };
-            Vector2[] pts2 = new Vector2[3]{
-                _callibrationData.ideal[0],
-                _callibrationData.ideal[2],
-                _callibrationData.ideal[3]
-            };
-            var k = Triangle(pts,pos);
-            //DebugText.instance.ResetText(DebugText.DebugTextGroup.Side);
-            //DebugText.instance.AddText("Top",DebugText.DebugTextGroup.Side);
-            return Dot(pts2,k);
+            temp[i] = Mathf.Exp(v[i]);
         }
-        else
-        {
-            Vector2[] pts = new Vector2[3]{
-                _callibrationData.real[0],
-                _callibrationData.real[2],
-                _callibrationData.real[1]
-            };
-            Vector2[] pts2 = new Vector2[3]{
-                _callibrationData.ideal[0],
-                _callibrationData.ideal[2],
-                _callibrationData.ideal[1]
-            };
-            //DebugText.instance.ResetText(DebugText.DebugTextGroup.Side);
-            //DebugText.instance.AddText("Bot",DebugText.DebugTextGroup.Side);
-            var k = Triangle(pts,pos);
-            return Dot(pts2,k);
-        }
+
+        var sum = temp.x + temp.y + temp.z + temp.w;
+        
+        return temp / sum;
     }
 }
