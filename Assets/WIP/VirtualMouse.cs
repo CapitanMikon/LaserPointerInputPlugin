@@ -9,21 +9,17 @@ public class VirtualMouse : MonoBehaviour
     public static VirtualMouse instance;
 
     [SerializeField] private GameObject cameraFeed;
-    public int maxWidth;
-    public int maxHeight;
-
+    
     private float x;
     private float y;
     
-    
-    //GUI raycast
-    [SerializeField] private GraphicRaycaster guiRaycaster;
-    private List<RaycastResult> guiRaycastResults = new List<RaycastResult>();
+    private List<RaycastResult> guiRaycastResults;
     private PointerEventData pointerEventData;
-    [SerializeField] private EventSystem eventSystem;
-    
+
     void Awake()
     {
+        guiRaycastResults = new List<RaycastResult>();
+            
         if (instance == null)
         {
             instance = this;
@@ -50,15 +46,17 @@ public class VirtualMouse : MonoBehaviour
 
     public void PerformLeftMouseClick()
     {
-        pointerEventData = new PointerEventData(eventSystem);
-        //Set the Pointer Event Position to that of the game object
+        //Set the Pointer Event Position
+        pointerEventData = new PointerEventData(EventSystem.current);
         pointerEventData.position = new Vector2(x,y);
  
-        //Create a list of Raycast Results
+        //list of Raycast Results
         guiRaycastResults.Clear();
+        
         //Raycast using the Graphics Raycaster and mouse click position
-        guiRaycaster.Raycast(pointerEventData, guiRaycastResults);
+        EventSystem.current.RaycastAll(pointerEventData, guiRaycastResults);
 
+        //UI has higher priority
         if (guiRaycastResults.Count > 0)
         {
             string s = "";
@@ -72,16 +70,21 @@ public class VirtualMouse : MonoBehaviour
                     break;
                 }
             }
-            Debug.LogWarning($"Hit GUI:[ {s} ]");
+            Debug.LogWarning($"Hit GUI button:[ {s} ]");
         }
         
         
-        //
+        //since we want to prioritize UI buttons we wont cast ray if we hit UI button
         if (guiRaycastResults.Count == 0)
         {
+            if (Camera.main == null)
+            {
+                Debug.LogError("Camera.main == null !");
+                return;
+            }
+            
             Ray ray = Camera.main.ScreenPointToRay(new Vector3(x, y, 0));
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, 100))
+            if (Physics.Raycast(ray, out var hit, 100))
             {
                 if (hit.collider.TryGetComponent(out ILaserInteractable laserInteractable))
                 {

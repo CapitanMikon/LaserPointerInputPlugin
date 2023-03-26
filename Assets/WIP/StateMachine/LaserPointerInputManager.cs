@@ -10,6 +10,7 @@ public class LaserPointerInputManager : MonoBehaviour
     public LaserPointerInputSetUp setUpState = new LaserPointerInputSetUp();
     public LaserPointerInputCalibration calibrationState = new LaserPointerInputCalibration();
     public LaserPointerInputInOperation inOperationState = new LaserPointerInputInOperation();
+    public LaserPointerInputOffline offlineState = new LaserPointerInputOffline();
 
     private CallibrationData _callibrationData;
     private CameraData _cameraData;
@@ -31,7 +32,7 @@ public class LaserPointerInputManager : MonoBehaviour
     void Start()
     {
         ResetMarkerSpritePosition();
-        currentState = setUpState;
+        currentState = offlineState;
         currentState.EnterState(this);
     }
     

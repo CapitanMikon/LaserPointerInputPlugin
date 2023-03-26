@@ -88,8 +88,8 @@ public class WebCamera : MonoBehaviour
         GAME_WINDOW_HEIGHT = Display.displays[PROJECTOR_DISPLAY_ID].systemHeight;
         //GAME_WINDOW_WIDTH = Display.main.systemWidth;
         GAME_WINDOW_WIDTH = Display.displays[PROJECTOR_DISPLAY_ID].systemWidth;;
-        VirtualMouse.instance.maxWidth = GAME_WINDOW_WIDTH;
-        VirtualMouse.instance.maxHeight = GAME_WINDOW_HEIGHT;
+        //VirtualMouse.instance.maxWidth = GAME_WINDOW_WIDTH;
+        //VirtualMouse.instance.maxHeight = GAME_WINDOW_HEIGHT;
         
         Debug.LogWarning($"Window res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}");
         DebugText.instance.AddText($"\nWindow res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}", DebugText.DebugTextGroup.Resolution);

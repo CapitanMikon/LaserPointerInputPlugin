@@ -46,8 +46,8 @@ public class LaserPointerInputSetUp : LaserPointerInputBaseState
         //GAME_WINDOW_WIDTH = Display.main.systemWidth;
         GAME_WINDOW_WIDTH = Display.displays[_laserPointerInputManager.PROJECTOR_DISPLAY_ID].systemWidth;
         
-        VirtualMouse.instance.maxWidth = GAME_WINDOW_WIDTH;
-        VirtualMouse.instance.maxHeight = GAME_WINDOW_HEIGHT;
+        //VirtualMouse.instance.maxWidth = GAME_WINDOW_WIDTH;
+        //VirtualMouse.instance.maxHeight = GAME_WINDOW_HEIGHT;
         
         Debug.LogWarning($"Window res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}");
         DebugText.instance.AddText($"\nWindow res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}", DebugText.DebugTextGroup.Resolution);
