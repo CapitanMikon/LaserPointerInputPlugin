@@ -6,8 +6,6 @@ using UnityEngine.UI;
 public class LPIPMouseEmulation : MonoBehaviour
 {
     public static LPIPMouseEmulation Instance;
-
-    [SerializeField] private GameObject cameraFeed;
     
     private float x, y;
     
@@ -22,18 +20,6 @@ public class LPIPMouseEmulation : MonoBehaviour
         {
             Instance = this;
         }
-    }
-
-    public void HideCameraFeed()
-    {
-        Debug.Log("CameraFeed OFF");
-        cameraFeed.SetActive(false);
-    }
-    
-    public void ShowCameraFeed()
-    {
-        Debug.Log("CameraFeed ON");
-        cameraFeed.SetActive(true);
     }
 
     public void SetMouseClickPositions(float x, float y)

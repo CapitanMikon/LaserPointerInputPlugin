@@ -50,10 +50,10 @@ public class LPIPRunningState : LPIPBaseState
     {
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            LPIPMouseEmulation.Instance.ShowCameraFeed();
+            LPIPCalibrationUIController.Instance.ShowCameraFeed();
         }else if(Input.GetKeyDown(KeyCode.F2))
         {
-            LPIPMouseEmulation.Instance.HideCameraFeed();
+            LPIPCalibrationUIController.Instance.HideCameraFeed();
         }else if (Input.GetKeyDown(KeyCode.F5))
         {
             _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
@@ -112,12 +112,14 @@ public class LPIPRunningState : LPIPBaseState
     
     public void StartLaserDetection()
     {
+        _lpipCoreManager.InvokeDetectionStartedEvent();
         laserDetectionIsEnabled = true;
         Debug.Log("Started laser detection.");
     }
     
     public void StopLaserDetection()
     {
+        _lpipCoreManager.InvokeDetectionStoppedEvent();
         laserDetectionIsEnabled = false;
         Debug.Log("Stopped laser detection.");
         _lpipCoreManager.ResetLaserMarkerPos();

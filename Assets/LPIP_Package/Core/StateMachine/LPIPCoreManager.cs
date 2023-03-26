@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class LPIPCoreManager : MonoBehaviour
 {
+    
     public LPIPBaseState InitializationState { get; private set; }
     public LPIPBaseState ManualCalibrationState {get; private set;}
     //public LPIPBaseState AutomaticCalibrationState {get; private set;}
@@ -21,7 +22,11 @@ public class LPIPCoreManager : MonoBehaviour
 
     [SerializeField] public RawImage webcamImageHolder;
 
-    [SerializeField] private UnityEvent OnCalibrationDone; 
+    public static event Action OnCalibrationStartedEvent;
+    public static event Action<LPIPManualCalibrationState.LPIPCalibrationResult> OnCalibrationFinishedEvent;
+    public static event Action OnDetectionStartedEvent;
+    public static event Action OnDetectionStoppedEvent;
+    
     [SerializeField] private UnityEvent OnLaserInputRegistered; 
     
     public WebCamTexture webCamTexture;
@@ -64,9 +69,31 @@ public class LPIPCoreManager : MonoBehaviour
         OnLaserInputRegistered?.Invoke();
     }
     
-    public void InvokeOnLaserPointerCalibrationEndedEvent()
+    public void InvokeCalibrationEndedEvent(LPIPManualCalibrationState.LPIPCalibrationResult result)
     {
-        OnCalibrationDone?.Invoke();
+        Debug.LogWarning($"Fired event OnCalibrationFinishedEvent = result");
+        OnCalibrationFinishedEvent?.Invoke(result);
+    }
+    
+    public void InvokeCalibrationStartedEvent()
+    {
+        Debug.LogWarning($"Fired event OnCalibrationStartedEvent");
+
+        OnCalibrationStartedEvent?.Invoke();
+    }
+    
+    public void InvokeDetectionStartedEvent()
+    {
+        Debug.LogWarning($"Fired event OnDetectionStartedEvent");
+
+        OnDetectionStartedEvent?.Invoke();
+    }
+
+    public void InvokeDetectionStoppedEvent()
+    {
+        Debug.LogWarning($"Fired event OnDetectionStoppedEvent");
+        
+        OnDetectionStoppedEvent?.Invoke();
     }
 
     public void UpdateLaserMarkerPos(float x, float y)

@@ -118,7 +118,7 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
     private void StartCalibration()
     {
-        LPIPMouseEmulation.Instance.ShowCameraFeed();
+        _lpipCoreManager.InvokeCalibrationStartedEvent();
         Debug.Log("Calibrating started.");
         Debug.Log("Please select 4 starting from points BL, BR, TR, TL.");
         isCalibrating = true;
@@ -126,23 +126,24 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
     private void EndCalibration()
     {
-        LPIPMouseEmulation.Instance.HideCameraFeed();
+        _lpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Normal);
         SaveCalibrationData();
-        Debug.Log("Calibrating ended.");
+        Debug.Log("Calibrating ended. Fired event!");
         isCalibrating = false;
         _lpipCoreManager.SwitchState(_lpipCoreManager.RunningState);
     }
 
     private void RestartCalibration()
     {
-        Debug.Log("Restarting calibration.");
+        _lpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Restart);
+        Debug.Log("Restarting calibration. Fired event!");
         _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
     }
     
     private void CancelCalibration()
     {
-        LPIPMouseEmulation.Instance.HideCameraFeed();
-        Debug.Log("Cancelling calibration.");
+        _lpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Cancel);
+        Debug.Log("Cancelling calibration. Fired event!");
         _lpipCoreManager.SwitchState(_lpipCoreManager.InitializationState);
     }
 
@@ -160,4 +161,13 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
         _lpipCoreManager.LpipCalibrationData = calibrationData;
     }
+    
+    public enum LPIPCalibrationResult
+    {
+        Normal,
+        Restart,
+        Cancel,
+        Error,
+    }
 }
+
