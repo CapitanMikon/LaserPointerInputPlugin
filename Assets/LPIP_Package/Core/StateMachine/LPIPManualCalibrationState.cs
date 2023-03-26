@@ -36,7 +36,7 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("LPIP currentstate = {LPIPManualCalibrationState}");
+        Debug.Log("Entered state {LPIPManualCalibrationState}");
         _lpipCoreManager = lpipCoreManager;
         Initialize();
         //try load saved calibration
@@ -85,6 +85,11 @@ public class LPIPManualCalibrationState : LPIPBaseState
                 //CancelCalibration();
             }
         }
+    }
+    
+    public override void ExitState()
+    {
+        Debug.Log("Leaving state {LPIPManualCalibrationState}");
     }
 
     private void Initialize()

@@ -54,9 +54,9 @@ public class LPIPCoreManager : MonoBehaviour
 
     public void SwitchState(LPIPBaseState state)
     {
-        //state.ExitState();
+        _currentState.ExitState();
         _currentState = state;
-        state.EnterState(this);
+        _currentState.EnterState(this);
     }
 
     public void InvokeOnLaserPointerInputDetectedEvent()

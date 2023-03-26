@@ -34,7 +34,7 @@ public class LPIPRunningState : LPIPBaseState
     
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("LPIP currentstate = {LPIPRunningState}");
+        Debug.Log("Entered state {LPIPRunningState}");
         _lpipCoreManager = lpipCoreManager;
 
         webCamTexture = _lpipCoreManager.webCamTexture;
@@ -103,6 +103,11 @@ public class LPIPRunningState : LPIPBaseState
             ResetBorders();
         }
         
+    }
+    
+    public override void ExitState()
+    {
+        Debug.Log("Leaving state {LPIPRunningState}");
     }
     
     public void StartLaserDetection()

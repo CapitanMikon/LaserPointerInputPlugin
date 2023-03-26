@@ -8,7 +8,7 @@ public class LPIPStandbyState : LPIPBaseState
     
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("LPIP currentstate = {LPIPStandbyState}");
+        Debug.Log("Entered state {LPIPStandbyState}");
         _lpipCoreManager = lpipCoreManager;
     }
 
@@ -18,6 +18,11 @@ public class LPIPStandbyState : LPIPBaseState
         {
             StartCalibration();
         }
+    }
+
+    public override void ExitState()
+    {
+        Debug.Log("Leaving state {LPIPStandbyState}");
     }
 
     private void StartCalibration()

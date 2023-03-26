@@ -17,7 +17,7 @@ public class LPIPInitializationState : LPIPBaseState
     
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("LPIP currentstate = {LPIPInitializationState}");
+        Debug.Log("Entered state {LPIPInitializationState}");
         _lpipCoreManager = lpipCoreManager;
         
         WebCamDevice[] devices = WebCamTexture.devices;
@@ -63,6 +63,11 @@ public class LPIPInitializationState : LPIPBaseState
 
     public override void UpdateState()
     {
+    }
+    
+    public override void ExitState()
+    {
+        Debug.Log("Leaving state {LPIPInitializationState}");
     }
     
     void ConfigureWebcam(int width, int height, int fps)
