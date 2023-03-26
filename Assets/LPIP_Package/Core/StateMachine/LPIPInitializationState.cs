@@ -20,6 +20,23 @@ public class LPIPInitializationState : LPIPBaseState
         Debug.Log("Entered state {LPIPInitializationState}");
         _lpipCoreManager = lpipCoreManager;
         
+        Initialize();
+        
+        SaveData();
+        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
+    }
+
+    public override void UpdateState()
+    {
+    }
+    
+    public override void ExitState()
+    {
+        Debug.Log("Leaving state {LPIPInitializationState}");
+    }
+
+    void Initialize()
+    {
         WebCamDevice[] devices = WebCamTexture.devices;
         
         for (var i = 0; i < devices.Length; i++)
@@ -35,19 +52,16 @@ public class LPIPInitializationState : LPIPBaseState
             //ConfigureWebcam(1280, 720, 30);
             _lpipCoreManager.webCamTexture.Play();
         }
+        
         LogWebcamInfo();
         
         //get real camera/game width and height
         CAMERA_WIDTH = _lpipCoreManager.webCamTexture.requestedWidth;
         CAMERA_HEIGHT = _lpipCoreManager.webCamTexture.requestedHeight;
         
-        //GAME_WINDOW_HEIGHT = Display.main.systemHeight;
         GAME_WINDOW_HEIGHT = Display.displays[_lpipCoreManager.PROJECTOR_DISPLAY_ID].systemHeight;
-        //GAME_WINDOW_WIDTH = Display.main.systemWidth;
         GAME_WINDOW_WIDTH = Display.displays[_lpipCoreManager.PROJECTOR_DISPLAY_ID].systemWidth;
         
-        //LPIPMouseEmulation.Instance.maxWidth = GAME_WINDOW_WIDTH;
-        //LPIPMouseEmulation.Instance.maxHeight = GAME_WINDOW_HEIGHT;
         
         Debug.LogWarning($"Window res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}");
         DebugText.instance.AddText($"\nWindow res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}", DebugText.DebugTextGroup.Resolution);
@@ -56,18 +70,6 @@ public class LPIPInitializationState : LPIPBaseState
         GAME_WINDOW_FACTORX =  GAME_WINDOW_WIDTH / Convert.ToSingle(CAMERA_WIDTH);
         GAME_WINDOW_FACTORY =  GAME_WINDOW_HEIGHT / Convert.ToSingle(CAMERA_HEIGHT);
         Debug.LogWarning($"Window res factor is: {GAME_WINDOW_FACTORX}:{GAME_WINDOW_FACTORY}");
-
-        SaveData();
-        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
-    }
-
-    public override void UpdateState()
-    {
-    }
-    
-    public override void ExitState()
-    {
-        Debug.Log("Leaving state {LPIPInitializationState}");
     }
     
     void ConfigureWebcam(int width, int height, int fps)
@@ -94,7 +96,7 @@ public class LPIPInitializationState : LPIPBaseState
             GAME_WINDOW_FACTORY = GAME_WINDOW_FACTORY
         };
 
-        _lpipCoreManager.SetWindowData(windowData);
+        _lpipCoreManager.WindowData = windowData;
 
         CameraData cameraData = new CameraData
         {
@@ -102,6 +104,6 @@ public class LPIPInitializationState : LPIPBaseState
             CAMERA_HEIGHT = CAMERA_HEIGHT
         };
 
-        _lpipCoreManager.SetCameraData(cameraData);
+        _lpipCoreManager.CameraData = cameraData;
     }
 }

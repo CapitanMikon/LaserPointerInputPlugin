@@ -38,9 +38,9 @@ public class LPIPRunningState : LPIPBaseState
         _lpipCoreManager = lpipCoreManager;
 
         webCamTexture = _lpipCoreManager.webCamTexture;
-        _lpipCalibrationData = _lpipCoreManager.GetCalibrationData();
-        _cameraData = _lpipCoreManager.GetCameraData();
-        _windowData = _lpipCoreManager.GetWindowData();
+        _lpipCalibrationData = _lpipCoreManager.LpipCalibrationData;
+        _cameraData = _lpipCoreManager.CameraData;
+        _windowData = _lpipCoreManager.WindowData;
         
         ResetBorders();
         StartLaserDetection();
@@ -159,15 +159,12 @@ public class LPIPRunningState : LPIPBaseState
         Debug.Log("Marker was updated!");
         var centerX = (left.value + right.value) / 2;
         var centerY = (top.value + bottom.value) / 2;
-
-        var transformedY = Mathf.Max(centerY - _lpipCalibrationData.restrictionBottomRight.y, 0) * _lpipCalibrationData.factorY * _windowData.GAME_WINDOW_FACTORY;
-        var transformedX = Mathf.Max(centerX - _lpipCalibrationData.restrictionTopLeft.x, 0) * _lpipCalibrationData.factorX * _windowData.GAME_WINDOW_FACTORX;
         
         var result = Project(new Vector2(centerX, centerY));
         
         LPIPMouseEmulation.Instance.SetMouseClickPositions(result.x, result.y);
+        
         _lpipCoreManager.InvokeOnLaserPointerInputDetectedEvent();
-
         _lpipCoreManager.UpdateLaserMarkerPos(result.x, result.y);
     }
 

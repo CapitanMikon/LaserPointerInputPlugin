@@ -6,7 +6,9 @@ public class LPIPManualCalibrationState : LPIPBaseState
     private LPIPCoreManager _lpipCoreManager;
 
     private bool isCalibrating;
-    private bool firstClick ;
+    private bool firstClick;
+    
+    private int clickCounter;
 
     private Pair restrictionTopLeft;
     private Pair restrictionBottomRight;
@@ -15,8 +17,7 @@ public class LPIPManualCalibrationState : LPIPBaseState
     private float factorY;
 
     private WindowData _windowData;
-    private CameraData _cameraData;
-    
+
     private Vector2[] real = new Vector2[4]{
         new Vector2(0, 0),
         new Vector2(0, 0),
@@ -32,15 +33,16 @@ public class LPIPManualCalibrationState : LPIPBaseState
         new Vector2(0, 0)
     };
 
-    private int clickCounter;
 
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
         Debug.Log("Entered state {LPIPManualCalibrationState}");
         _lpipCoreManager = lpipCoreManager;
+        
         Initialize();
         //try load saved calibration
         //else start anew
+        
         StartCalibration();
     }
 
@@ -97,8 +99,7 @@ public class LPIPManualCalibrationState : LPIPBaseState
         isCalibrating = false;
         firstClick = true;
         clickCounter = 0;
-        _windowData = _lpipCoreManager.GetWindowData();
-        _cameraData = _lpipCoreManager.GetCameraData();
+        _windowData = _lpipCoreManager.WindowData;
         
         ideal[0].x = 0;
         ideal[0].y = 0;
@@ -147,7 +148,7 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
     private void SaveCalibrationData()
     {
-        LPIPCalibrationData _calibrationData = new LPIPCalibrationData
+        var calibrationData = new LPIPCalibrationData
         {
             restrictionTopLeft = restrictionTopLeft,
             restrictionBottomRight = restrictionBottomRight,
@@ -157,6 +158,6 @@ public class LPIPManualCalibrationState : LPIPBaseState
             ideal = ideal,
         };
 
-        _lpipCoreManager.SetCalibrationData(_calibrationData);
+        _lpipCoreManager.LpipCalibrationData = calibrationData;
     }
 }

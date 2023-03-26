@@ -15,10 +15,10 @@ public class LPIPCoreManager : MonoBehaviour
     
     private LPIPBaseState _currentState;
 
-    private LPIPCalibrationData _lpipCalibrationData;
-    private CameraData _cameraData;
-    private WindowData _windowData;
-    
+    public LPIPCalibrationData LpipCalibrationData  { get;  set; }
+    public CameraData CameraData  { get;  set; }
+    public WindowData WindowData  { get;  set; }
+
     [SerializeField] public RawImage webcamImageHolder;
 
     [SerializeField] private UnityEvent OnCalibrationDone; 
@@ -78,38 +78,5 @@ public class LPIPCoreManager : MonoBehaviour
     {
         Debug.LogWarning("Marker was reset off screen!");
         markerSprite.transform.position = _laserPointerMarketDefaultPosition;
-    }
-
-    public void SetCalibrationData(LPIPCalibrationData data)
-    {
-        _lpipCalibrationData = data;
-    }
-
-    //
-    //calibration data methods
-    //
-    public LPIPCalibrationData GetCalibrationData()
-    {
-        return _lpipCalibrationData;
-    }
-    
-    public void SetCameraData(CameraData data)
-    {
-        _cameraData = data;
-    }
-
-    public CameraData GetCameraData()
-    {
-        return _cameraData;
-    }
-    
-    public void SetWindowData(WindowData data)
-    {
-        _windowData = data;
-    }
-
-    public WindowData GetWindowData()
-    {
-        return _windowData;
     }
 }
