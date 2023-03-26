@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class LPIPStanbyState : LPIPBaseState
 {
-    private LPIPStateManager _lpipStateManager;
+    private LPIPCoreManager _lpipCoreManager;
     
-    public override void EnterState(LPIPStateManager lpipStateManager)
+    public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("STATE: OFFLINE");
-        _lpipStateManager = lpipStateManager;
+        Debug.Log("LPIP currentstate = {LPIPStanbyState}");
+        _lpipCoreManager = lpipCoreManager;
     }
 
     public override void UpdateState()
@@ -23,6 +23,6 @@ public class LPIPStanbyState : LPIPBaseState
     private void StartCalibration()
     {
         Debug.LogWarning("Laser input module is now online!");
-        _lpipStateManager.SwitchState(_lpipStateManager.InitializationStateState);
+        _lpipCoreManager.SwitchState(_lpipCoreManager.InitializationStateState);
     }
 }

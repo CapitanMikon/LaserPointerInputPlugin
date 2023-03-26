@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class LPIPInitializationState : LPIPBaseState
 {
-    private LPIPStateManager _lpipStateManager;
+    private LPIPCoreManager _lpipCoreManager;
     
     
     //scaling from game to camera
@@ -15,10 +15,10 @@ public class LPIPInitializationState : LPIPBaseState
     private int CAMERA_WIDTH = -1;
     private int CAMERA_HEIGHT = -1;
     
-    public override void EnterState(LPIPStateManager lpipStateManager)
+    public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("STATE: SetUp");
-        _lpipStateManager = lpipStateManager;
+        Debug.Log("LPIP currentstate = {LPIPInitializationState}");
+        _lpipCoreManager = lpipCoreManager;
         
         WebCamDevice[] devices = WebCamTexture.devices;
         
@@ -29,22 +29,22 @@ public class LPIPInitializationState : LPIPBaseState
 
         if (devices.Length > 0)
         {
-            _lpipStateManager.webCamTexture = new WebCamTexture(devices[0].name);
-            _lpipStateManager.webcamImageHolder.texture = _lpipStateManager.webCamTexture;
+            _lpipCoreManager.webCamTexture = new WebCamTexture(devices[0].name);
+            _lpipCoreManager.webcamImageHolder.texture = _lpipCoreManager.webCamTexture;
             ConfigureWebcam(1920, 1080, 30);
             //ConfigureWebcam(1280, 720, 30);
-            _lpipStateManager.webCamTexture.Play();
+            _lpipCoreManager.webCamTexture.Play();
         }
         LogWebcamInfo();
         
         //get real camera/game width and height
-        CAMERA_WIDTH = _lpipStateManager.webCamTexture.requestedWidth;
-        CAMERA_HEIGHT = _lpipStateManager.webCamTexture.requestedHeight;
+        CAMERA_WIDTH = _lpipCoreManager.webCamTexture.requestedWidth;
+        CAMERA_HEIGHT = _lpipCoreManager.webCamTexture.requestedHeight;
         
         //GAME_WINDOW_HEIGHT = Display.main.systemHeight;
-        GAME_WINDOW_HEIGHT = Display.displays[_lpipStateManager.PROJECTOR_DISPLAY_ID].systemHeight;
+        GAME_WINDOW_HEIGHT = Display.displays[_lpipCoreManager.PROJECTOR_DISPLAY_ID].systemHeight;
         //GAME_WINDOW_WIDTH = Display.main.systemWidth;
-        GAME_WINDOW_WIDTH = Display.displays[_lpipStateManager.PROJECTOR_DISPLAY_ID].systemWidth;
+        GAME_WINDOW_WIDTH = Display.displays[_lpipCoreManager.PROJECTOR_DISPLAY_ID].systemWidth;
         
         //LPIPMouseEmulation.Instance.maxWidth = GAME_WINDOW_WIDTH;
         //LPIPMouseEmulation.Instance.maxHeight = GAME_WINDOW_HEIGHT;
@@ -58,7 +58,7 @@ public class LPIPInitializationState : LPIPBaseState
         Debug.LogWarning($"Window res factor is: {GAME_WINDOW_FACTORX}:{GAME_WINDOW_FACTORY}");
 
         SaveData();
-        _lpipStateManager.SwitchState(_lpipStateManager.ManualCalibrationStateState);
+        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationStateState);
     }
 
     public override void UpdateState()
@@ -67,16 +67,16 @@ public class LPIPInitializationState : LPIPBaseState
     
     void ConfigureWebcam(int width, int height, int fps)
     {
-        _lpipStateManager.webCamTexture.requestedFPS = fps;
-        _lpipStateManager.webCamTexture.requestedWidth = width;
-        _lpipStateManager.webCamTexture.requestedHeight = height;
+        _lpipCoreManager.webCamTexture.requestedFPS = fps;
+        _lpipCoreManager.webCamTexture.requestedWidth = width;
+        _lpipCoreManager.webCamTexture.requestedHeight = height;
     }
     
     void LogWebcamInfo()
     {
-        Debug.Log($"\nCurrent camera configuration:\nFPS: {_lpipStateManager.webCamTexture.requestedFPS}\nRes: {_lpipStateManager.webCamTexture.width}x{_lpipStateManager.webCamTexture.height}");
+        Debug.Log($"\nCurrent camera configuration:\nFPS: {_lpipCoreManager.webCamTexture.requestedFPS}\nRes: {_lpipCoreManager.webCamTexture.width}x{_lpipCoreManager.webCamTexture.height}");
         DebugText.instance.AddText(
-            $"Current camera configuration:\nFPS: {_lpipStateManager.webCamTexture.requestedFPS}\nRes: {_lpipStateManager.webCamTexture.width}x{_lpipStateManager.webCamTexture.height}", DebugText.DebugTextGroup.Resolution);
+            $"Current camera configuration:\nFPS: {_lpipCoreManager.webCamTexture.requestedFPS}\nRes: {_lpipCoreManager.webCamTexture.width}x{_lpipCoreManager.webCamTexture.height}", DebugText.DebugTextGroup.Resolution);
     }
 
     void SaveData()
@@ -89,7 +89,7 @@ public class LPIPInitializationState : LPIPBaseState
             GAME_WINDOW_FACTORY = GAME_WINDOW_FACTORY
         };
 
-        _lpipStateManager.SetWindowData(windowData);
+        _lpipCoreManager.SetWindowData(windowData);
 
         CameraData cameraData = new CameraData
         {
@@ -97,6 +97,6 @@ public class LPIPInitializationState : LPIPBaseState
             CAMERA_HEIGHT = CAMERA_HEIGHT
         };
 
-        _lpipStateManager.SetCameraData(cameraData);
+        _lpipCoreManager.SetCameraData(cameraData);
     }
 }

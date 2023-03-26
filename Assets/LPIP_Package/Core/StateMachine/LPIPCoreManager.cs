@@ -1,16 +1,18 @@
+using System;
 using System.Collections;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine;
 
-public class LPIPStateManager : MonoBehaviour
+public class LPIPCoreManager : MonoBehaviour
 {
-    private LPIPBaseState currentState;
+    public LPIPInitializationState InitializationStateState { get; private set; }
+    public LPIPManualCalibrationState ManualCalibrationStateState{get; private set;}
+    public LPIPRunningState RunningStateState { get; private set; }
+    public LPIPStanbyState StanbyStateState { get; private set; }
 
-    public LPIPInitializationState InitializationStateState = new LPIPInitializationState();
-    public LPIPManualCalibrationState ManualCalibrationStateState = new LPIPManualCalibrationState();
-    public LPIPRunningState RunningStateState = new LPIPRunningState();
-    public LPIPStanbyState StanbyStateState = new LPIPStanbyState();
+    
+    private LPIPBaseState _currentState;
 
     private LPIPCalibrationData _lpipCalibrationData;
     private CameraData _cameraData;
@@ -25,25 +27,33 @@ public class LPIPStateManager : MonoBehaviour
 
     public int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
     
-    private Vector3 markerDefaultPosition = new Vector3(-100, -100, 0);
-
+    private readonly Vector3 _laserPointerMarketDefaultPosition = new Vector3(-100, -100, 0);
     [SerializeField] private GameObject markerSprite;
-    
+
+    private void Awake()
+    {
+        InitializationStateState = new LPIPInitializationState();
+        ManualCalibrationStateState = new LPIPManualCalibrationState();
+        RunningStateState = new LPIPRunningState();
+        StanbyStateState = new LPIPStanbyState();
+    }
+
     void Start()
     {
-        ResetMarkerSpritePosition();
-        currentState = StanbyStateState;
-        currentState.EnterState(this);
+        ResetLaserMarkerPos();
+        _currentState = StanbyStateState;
+        _currentState.EnterState(this);
     }
     
     void Update()
     {
-        currentState.UpdateState();
+        _currentState.UpdateState();
     }
 
     public void SwitchState(LPIPBaseState state)
     {
-        currentState = state;
+        //state.ExitState();
+        _currentState = state;
         state.EnterState(this);
     }
 
@@ -57,15 +67,15 @@ public class LPIPStateManager : MonoBehaviour
         OnCalibrationDone?.Invoke();
     }
 
-    public void UpdateMarkerSpritePosition(float x, float y)
+    public void UpdateLaserMarkerPos(float x, float y)
     {
         markerSprite.transform.position = new Vector3(x, y, 0);
     }
     
-    public void ResetMarkerSpritePosition()
+    public void ResetLaserMarkerPos()
     {
         Debug.LogWarning("Marker was reset off screen!");
-        markerSprite.transform.position = markerDefaultPosition;
+        markerSprite.transform.position = _laserPointerMarketDefaultPosition;
     }
 
     public void SetCalibrationData(LPIPCalibrationData data)
@@ -73,6 +83,9 @@ public class LPIPStateManager : MonoBehaviour
         _lpipCalibrationData = data;
     }
 
+    //
+    //calibration data methods
+    //
     public LPIPCalibrationData GetCalibrationData()
     {
         return _lpipCalibrationData;

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class LPIPRunningState : LPIPBaseState
 {
-    private LPIPStateManager _lpipStateManager;
+    private LPIPCoreManager _lpipCoreManager;
     
     private bool laserDetectionIsEnabled = false;
     private bool beginNoLaserProcedure = false;
@@ -32,15 +32,15 @@ public class LPIPRunningState : LPIPBaseState
     private CameraData _cameraData;
     private WindowData _windowData;
     
-    public override void EnterState(LPIPStateManager lpipStateManager)
+    public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("STATE: OPERATION");
-        _lpipStateManager = lpipStateManager;
+        Debug.Log("LPIP currentstate = {LPIPRunningState}");
+        _lpipCoreManager = lpipCoreManager;
 
-        webCamTexture = _lpipStateManager.webCamTexture;
-        _lpipCalibrationData = _lpipStateManager.GetCalibrationData();
-        _cameraData = _lpipStateManager.GetCameraData();
-        _windowData = _lpipStateManager.GetWindowData();
+        webCamTexture = _lpipCoreManager.webCamTexture;
+        _lpipCalibrationData = _lpipCoreManager.GetCalibrationData();
+        _cameraData = _lpipCoreManager.GetCameraData();
+        _windowData = _lpipCoreManager.GetWindowData();
         
         ResetBorders();
         StartLaserDetection();
@@ -56,13 +56,13 @@ public class LPIPRunningState : LPIPBaseState
             LPIPMouseEmulation.Instance.HideCameraFeed();
         }else if (Input.GetKeyDown(KeyCode.F5))
         {
-            _lpipStateManager.SwitchState(_lpipStateManager.ManualCalibrationStateState);
+            _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationStateState);
         }
         if (beginNoLaserProcedure)
         {
             if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
             {
-                _lpipStateManager.ResetMarkerSpritePosition();
+                _lpipCoreManager.ResetLaserMarkerPos();
                 emptyFrames = 0;
                 beginNoLaserProcedure = false;
             }
@@ -115,7 +115,7 @@ public class LPIPRunningState : LPIPBaseState
     {
         laserDetectionIsEnabled = false;
         Debug.Log("Stopped laser detection.");
-        _lpipStateManager.ResetMarkerSpritePosition();
+        _lpipCoreManager.ResetLaserMarkerPos();
     }
     
     private void UpdateBorders(int x, int y, double luminance)
@@ -161,9 +161,9 @@ public class LPIPRunningState : LPIPBaseState
         var result = Project(new Vector2(centerX, centerY));
         
         LPIPMouseEmulation.Instance.SetMouseClickPositions(result.x, result.y);
-        _lpipStateManager.InvokeOnLaserPointerInputDetectedEvent();
+        _lpipCoreManager.InvokeOnLaserPointerInputDetectedEvent();
 
-        _lpipStateManager.UpdateMarkerSpritePosition(result.x, result.y);
+        _lpipCoreManager.UpdateLaserMarkerPos(result.x, result.y);
     }
 
     void ResetBorders()

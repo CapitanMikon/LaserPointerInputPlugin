@@ -3,7 +3,7 @@ using System;
 
 public class LPIPManualCalibrationState : LPIPBaseState
 {
-    private LPIPStateManager _lpipStateManager;
+    private LPIPCoreManager _lpipCoreManager;
 
     private bool isCalibrating;
     private bool firstClick ;
@@ -34,10 +34,10 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
     private int clickCounter;
 
-    public override void EnterState(LPIPStateManager lpipStateManager)
+    public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("STATE: Calibration");
-        _lpipStateManager = lpipStateManager;
+        Debug.Log("LPIP currentstate = {LPIPManualCalibrationState}");
+        _lpipCoreManager = lpipCoreManager;
         Initialize();
         //try load saved calibration
         //else start anew
@@ -92,8 +92,8 @@ public class LPIPManualCalibrationState : LPIPBaseState
         isCalibrating = false;
         firstClick = true;
         clickCounter = 0;
-        _windowData = _lpipStateManager.GetWindowData();
-        _cameraData = _lpipStateManager.GetCameraData();
+        _windowData = _lpipCoreManager.GetWindowData();
+        _cameraData = _lpipCoreManager.GetCameraData();
         
         ideal[0].x = 0;
         ideal[0].y = 0;
@@ -124,20 +124,20 @@ public class LPIPManualCalibrationState : LPIPBaseState
         SaveCalibrationData();
         Debug.Log("Calibrating ended.");
         isCalibrating = false;
-        _lpipStateManager.SwitchState(_lpipStateManager.RunningStateState);
+        _lpipCoreManager.SwitchState(_lpipCoreManager.RunningStateState);
     }
 
     private void RestartCalibration()
     {
         Debug.Log("Restarting calibration.");
-        _lpipStateManager.SwitchState(_lpipStateManager.ManualCalibrationStateState);
+        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationStateState);
     }
     
     private void CancelCalibration()
     {
         LPIPMouseEmulation.Instance.HideCameraFeed();
         Debug.Log("Cancelling calibration.");
-        _lpipStateManager.SwitchState(_lpipStateManager.InitializationStateState);
+        _lpipCoreManager.SwitchState(_lpipCoreManager.InitializationStateState);
     }
 
     private void SaveCalibrationData()
@@ -152,6 +152,6 @@ public class LPIPManualCalibrationState : LPIPBaseState
             ideal = ideal,
         };
 
-        _lpipStateManager.SetCalibrationData(_calibrationData);
+        _lpipCoreManager.SetCalibrationData(_calibrationData);
     }
 }
