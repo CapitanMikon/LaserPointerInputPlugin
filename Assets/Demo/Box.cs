@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Box : MonoBehaviour, ILaserInteractable
+public class Box : MonoBehaviour, LPIPIInteractable
 {
     private Rigidbody rb;
 
@@ -26,7 +26,7 @@ public class Box : MonoBehaviour, ILaserInteractable
         }
     }
 
-    public void OnLaserClickEvent()
+    public void LPIPOnLaserHit()
     {
         rb.useGravity = true;
         rb.AddForce(Vector3.Normalize(transform.position - Camera.main.transform.position) * force);

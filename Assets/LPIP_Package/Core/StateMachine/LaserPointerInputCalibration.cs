@@ -112,7 +112,7 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
 
     private void StartCalibration()
     {
-        VirtualMouse.instance.ShowCameraFeed();
+        LPIPMouseEmulation.Instance.ShowCameraFeed();
         Debug.Log("Calibrating started.");
         Debug.Log("Please select 4 starting from points BL, BR, TR, TL.");
         isCalibrating = true;
@@ -120,7 +120,7 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
 
     private void EndCalibration()
     {
-        VirtualMouse.instance.HideCameraFeed();
+        LPIPMouseEmulation.Instance.HideCameraFeed();
         SaveCalibrationData();
         Debug.Log("Calibrating ended.");
         isCalibrating = false;
@@ -135,7 +135,7 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
     
     private void CancelCalibration()
     {
-        VirtualMouse.instance.HideCameraFeed();
+        LPIPMouseEmulation.Instance.HideCameraFeed();
         Debug.Log("Cancelling calibration.");
         _laserPointerInputManager.SwitchState(_laserPointerInputManager.setUpState);
     }

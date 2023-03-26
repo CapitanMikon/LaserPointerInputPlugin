@@ -1,28 +1,26 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class VirtualMouse : MonoBehaviour
+public class LPIPMouseEmulation : MonoBehaviour
 {
-    public static VirtualMouse instance;
+    public static LPIPMouseEmulation Instance;
 
     [SerializeField] private GameObject cameraFeed;
     
-    private float x;
-    private float y;
+    private float x, y;
     
-    private List<RaycastResult> guiRaycastResults;
-    private PointerEventData pointerEventData;
+    private List<RaycastResult> _guiRaycastResults;
+    private PointerEventData _pointerEventData;
 
     void Awake()
     {
-        guiRaycastResults = new List<RaycastResult>();
+        _guiRaycastResults = new List<RaycastResult>();
             
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
     }
 
@@ -47,35 +45,35 @@ public class VirtualMouse : MonoBehaviour
     public void PerformLeftMouseClick()
     {
         //Set the Pointer Event Position
-        pointerEventData = new PointerEventData(EventSystem.current);
-        pointerEventData.position = new Vector2(x,y);
+        _pointerEventData = new PointerEventData(EventSystem.current);
+        _pointerEventData.position = new Vector2(x,y);
  
         //list of Raycast Results
-        guiRaycastResults.Clear();
+        _guiRaycastResults.Clear();
         
         //Raycast using the Graphics Raycaster and mouse click position
-        EventSystem.current.RaycastAll(pointerEventData, guiRaycastResults);
+        EventSystem.current.RaycastAll(_pointerEventData, _guiRaycastResults);
 
         //UI has higher priority
-        if (guiRaycastResults.Count > 0)
+        if (_guiRaycastResults.Count > 0)
         {
             string s = "";
-            foreach (var r in guiRaycastResults)
+            foreach (var r in _guiRaycastResults)
             {
                 r.gameObject.TryGetComponent(out Button button);
                 if (button != null)
                 {
                     button.onClick?.Invoke();
-                    s+= $"{r.gameObject.name}, ";
+                    s+= $"{r.gameObject.name}";
                     break;
                 }
             }
-            Debug.LogWarning($"Hit GUI button:[ {s} ]");
+            Debug.LogWarning($"GUI button object: {s} was hit!");
         }
         
         
         //since we want to prioritize UI buttons we wont cast ray if we hit UI button
-        if (guiRaycastResults.Count == 0)
+        if (_guiRaycastResults.Count == 0)
         {
             if (Camera.main == null)
             {
@@ -86,13 +84,13 @@ public class VirtualMouse : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(new Vector3(x, y, 0));
             if (Physics.Raycast(ray, out var hit, 100))
             {
-                if (hit.collider.TryGetComponent(out ILaserInteractable laserInteractable))
+                if (hit.collider.TryGetComponent(out LPIPIInteractable laserInteractable))
                 {
-                    laserInteractable.OnLaserClickEvent();
+                    laserInteractable.LPIPOnLaserHit();
                 }
             }
             DebugText.instance.ResetText(DebugText.DebugTextGroup.MouseClickPos);
-            DebugText.instance.AddText($"Mouse PRESSED at: {x},{y}", DebugText.DebugTextGroup.MouseClickPos);
+            DebugText.instance.AddText($"Mouse click emulated at: {x},{y}", DebugText.DebugTextGroup.MouseClickPos);
         }
 
     }

@@ -50,10 +50,10 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
     {
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            VirtualMouse.instance.ShowCameraFeed();
+            LPIPMouseEmulation.Instance.ShowCameraFeed();
         }else if(Input.GetKeyDown(KeyCode.F2))
         {
-            VirtualMouse.instance.HideCameraFeed();
+            LPIPMouseEmulation.Instance.HideCameraFeed();
         }else if (Input.GetKeyDown(KeyCode.F5))
         {
             _laserPointerInputManager.SwitchState(_laserPointerInputManager.calibrationState);
@@ -160,7 +160,7 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         
         var result = Project(new Vector2(centerX, centerY));
         
-        VirtualMouse.instance.SetMouseClickPositions(result.x, result.y);
+        LPIPMouseEmulation.Instance.SetMouseClickPositions(result.x, result.y);
         _laserPointerInputManager.InvokeOnLaserPointerInputDetectedEvent();
 
         _laserPointerInputManager.UpdateMarkerSpritePosition(result.x, result.y);
@@ -236,8 +236,8 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
                 _callibrationData.ideal[3]
             };
             var k = Triangle(pts,pos);
-            //DebugText.instance.ResetText(DebugText.DebugTextGroup.Side);
-            //DebugText.instance.AddText("Top",DebugText.DebugTextGroup.Side);
+            //DebugText.Instance.ResetText(DebugText.DebugTextGroup.Side);
+            //DebugText.Instance.AddText("Top",DebugText.DebugTextGroup.Side);
             return Dot(pts2,k);
         }
         else
@@ -252,8 +252,8 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
                 _callibrationData.ideal[2],
                 _callibrationData.ideal[1]
             };
-            //DebugText.instance.ResetText(DebugText.DebugTextGroup.Side);
-            //DebugText.instance.AddText("Bot",DebugText.DebugTextGroup.Side);
+            //DebugText.Instance.ResetText(DebugText.DebugTextGroup.Side);
+            //DebugText.Instance.AddText("Bot",DebugText.DebugTextGroup.Side);
             var k = Triangle(pts,pos);
             return Dot(pts2,k);
         }
