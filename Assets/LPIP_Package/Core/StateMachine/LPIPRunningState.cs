@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class LaserPointerInputInOperation : LaserPointerInputBaseState
+public class LPIPRunningState : LPIPBaseState
 {
-    private LaserPointerInputManager _laserPointerInputManager;
+    private LPIPStateManager _lpipStateManager;
     
     private bool laserDetectionIsEnabled = false;
     private bool beginNoLaserProcedure = false;
@@ -28,19 +28,19 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
     private WebCamTexture webCamTexture;
     private Color32[] webCamPixels;
     
-    private CallibrationData _callibrationData;
+    private LPIPCalibrationData _lpipCalibrationData;
     private CameraData _cameraData;
     private WindowData _windowData;
     
-    public override void EnterState(LaserPointerInputManager laserPointerInputManager)
+    public override void EnterState(LPIPStateManager lpipStateManager)
     {
         Debug.Log("STATE: OPERATION");
-        _laserPointerInputManager = laserPointerInputManager;
+        _lpipStateManager = lpipStateManager;
 
-        webCamTexture = _laserPointerInputManager.webCamTexture;
-        _callibrationData = _laserPointerInputManager.GetCallibrationData();
-        _cameraData = _laserPointerInputManager.GetCameraData();
-        _windowData = _laserPointerInputManager.GetWindowData();
+        webCamTexture = _lpipStateManager.webCamTexture;
+        _lpipCalibrationData = _lpipStateManager.GetCalibrationData();
+        _cameraData = _lpipStateManager.GetCameraData();
+        _windowData = _lpipStateManager.GetWindowData();
         
         ResetBorders();
         StartLaserDetection();
@@ -56,13 +56,13 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
             LPIPMouseEmulation.Instance.HideCameraFeed();
         }else if (Input.GetKeyDown(KeyCode.F5))
         {
-            _laserPointerInputManager.SwitchState(_laserPointerInputManager.calibrationState);
+            _lpipStateManager.SwitchState(_lpipStateManager.ManualCalibrationStateState);
         }
         if (beginNoLaserProcedure)
         {
             if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
             {
-                _laserPointerInputManager.ResetMarkerSpritePosition();
+                _lpipStateManager.ResetMarkerSpritePosition();
                 emptyFrames = 0;
                 beginNoLaserProcedure = false;
             }
@@ -80,8 +80,8 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
                 var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
                 int currentX = i % _cameraData.CAMERA_WIDTH;
                 int currentY = i / _cameraData.CAMERA_WIDTH;
-                if (true)//(currentX >= _callibrationData.restrictionTopLeft.x && currentX <= _callibrationData.restrictionBottomRight.x
-                   //                                                   && currentY >= _callibrationData.restrictionBottomRight.y && currentY <= _callibrationData.restrictionTopLeft.y)//is within restrictions
+                if (true)//(currentX >= _lpipCalibrationData.restrictionTopLeft.x && currentX <= _lpipCalibrationData.restrictionBottomRight.x
+                   //                                                   && currentY >= _lpipCalibrationData.restrictionBottomRight.y && currentY <= _lpipCalibrationData.restrictionTopLeft.y)//is within restrictions
                 {
                     if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
                     {
@@ -115,7 +115,7 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
     {
         laserDetectionIsEnabled = false;
         Debug.Log("Stopped laser detection.");
-        _laserPointerInputManager.ResetMarkerSpritePosition();
+        _lpipStateManager.ResetMarkerSpritePosition();
     }
     
     private void UpdateBorders(int x, int y, double luminance)
@@ -155,15 +155,15 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         var centerX = (left.value + right.value) / 2;
         var centerY = (top.value + bottom.value) / 2;
 
-        var transformedY = Mathf.Max(centerY - _callibrationData.restrictionBottomRight.y, 0) * _callibrationData.factorY * _windowData.GAME_WINDOW_FACTORY;
-        var transformedX = Mathf.Max(centerX - _callibrationData.restrictionTopLeft.x, 0) * _callibrationData.factorX * _windowData.GAME_WINDOW_FACTORX;
+        var transformedY = Mathf.Max(centerY - _lpipCalibrationData.restrictionBottomRight.y, 0) * _lpipCalibrationData.factorY * _windowData.GAME_WINDOW_FACTORY;
+        var transformedX = Mathf.Max(centerX - _lpipCalibrationData.restrictionTopLeft.x, 0) * _lpipCalibrationData.factorX * _windowData.GAME_WINDOW_FACTORX;
         
         var result = Project(new Vector2(centerX, centerY));
         
         LPIPMouseEmulation.Instance.SetMouseClickPositions(result.x, result.y);
-        _laserPointerInputManager.InvokeOnLaserPointerInputDetectedEvent();
+        _lpipStateManager.InvokeOnLaserPointerInputDetectedEvent();
 
-        _laserPointerInputManager.UpdateMarkerSpritePosition(result.x, result.y);
+        _lpipStateManager.UpdateMarkerSpritePosition(result.x, result.y);
     }
 
     void ResetBorders()
@@ -219,21 +219,21 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         var i = 0;
         var j = 2;
         //Vector2 n = new Vector2(real[i].y - real[j].y, real[j].x - real[i].x);
-        Vector2 v = new Vector2(_callibrationData.real[i].x - _callibrationData.real[j].x, _callibrationData.real[i].y - _callibrationData.real[j].y);
+        Vector2 v = new Vector2(_lpipCalibrationData.real[i].x - _lpipCalibrationData.real[j].x, _lpipCalibrationData.real[i].y - _lpipCalibrationData.real[j].y);
         //var q = n.x * real[i].x + n.y * real[i].y;
-        var q = (v.y * _callibrationData.real[j].x - v.x * _callibrationData.real[j].y) * -1;
+        var q = (v.y * _lpipCalibrationData.real[j].x - v.x * _lpipCalibrationData.real[j].y) * -1;
 
         if (v.y * pos.x -v.x * pos.y + q >= 0)
         {
             Vector2[] pts = new Vector2[3]{
-                _callibrationData.real[0],
-                _callibrationData.real[2],
-                _callibrationData.real[3]
+                _lpipCalibrationData.real[0],
+                _lpipCalibrationData.real[2],
+                _lpipCalibrationData.real[3]
             };
             Vector2[] pts2 = new Vector2[3]{
-                _callibrationData.ideal[0],
-                _callibrationData.ideal[2],
-                _callibrationData.ideal[3]
+                _lpipCalibrationData.ideal[0],
+                _lpipCalibrationData.ideal[2],
+                _lpipCalibrationData.ideal[3]
             };
             var k = Triangle(pts,pos);
             //DebugText.Instance.ResetText(DebugText.DebugTextGroup.Side);
@@ -243,14 +243,14 @@ public class LaserPointerInputInOperation : LaserPointerInputBaseState
         else
         {
             Vector2[] pts = new Vector2[3]{
-                _callibrationData.real[0],
-                _callibrationData.real[2],
-                _callibrationData.real[1]
+                _lpipCalibrationData.real[0],
+                _lpipCalibrationData.real[2],
+                _lpipCalibrationData.real[1]
             };
             Vector2[] pts2 = new Vector2[3]{
-                _callibrationData.ideal[0],
-                _callibrationData.ideal[2],
-                _callibrationData.ideal[1]
+                _lpipCalibrationData.ideal[0],
+                _lpipCalibrationData.ideal[2],
+                _lpipCalibrationData.ideal[1]
             };
             //DebugText.Instance.ResetText(DebugText.DebugTextGroup.Side);
             //DebugText.Instance.AddText("Bot",DebugText.DebugTextGroup.Side);

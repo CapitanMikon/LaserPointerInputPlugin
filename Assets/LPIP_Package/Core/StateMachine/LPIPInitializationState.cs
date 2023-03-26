@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-public class LaserPointerInputSetUp : LaserPointerInputBaseState
+public class LPIPInitializationState : LPIPBaseState
 {
-    private LaserPointerInputManager _laserPointerInputManager;
+    private LPIPStateManager _lpipStateManager;
     
     
     //scaling from game to camera
@@ -15,10 +15,10 @@ public class LaserPointerInputSetUp : LaserPointerInputBaseState
     private int CAMERA_WIDTH = -1;
     private int CAMERA_HEIGHT = -1;
     
-    public override void EnterState(LaserPointerInputManager laserPointerInputManager)
+    public override void EnterState(LPIPStateManager lpipStateManager)
     {
         Debug.Log("STATE: SetUp");
-        _laserPointerInputManager = laserPointerInputManager;
+        _lpipStateManager = lpipStateManager;
         
         WebCamDevice[] devices = WebCamTexture.devices;
         
@@ -29,22 +29,22 @@ public class LaserPointerInputSetUp : LaserPointerInputBaseState
 
         if (devices.Length > 0)
         {
-            _laserPointerInputManager.webCamTexture = new WebCamTexture(devices[0].name);
-            _laserPointerInputManager.webcamImageHolder.texture = _laserPointerInputManager.webCamTexture;
+            _lpipStateManager.webCamTexture = new WebCamTexture(devices[0].name);
+            _lpipStateManager.webcamImageHolder.texture = _lpipStateManager.webCamTexture;
             ConfigureWebcam(1920, 1080, 30);
             //ConfigureWebcam(1280, 720, 30);
-            _laserPointerInputManager.webCamTexture.Play();
+            _lpipStateManager.webCamTexture.Play();
         }
         LogWebcamInfo();
         
         //get real camera/game width and height
-        CAMERA_WIDTH = _laserPointerInputManager.webCamTexture.requestedWidth;
-        CAMERA_HEIGHT = _laserPointerInputManager.webCamTexture.requestedHeight;
+        CAMERA_WIDTH = _lpipStateManager.webCamTexture.requestedWidth;
+        CAMERA_HEIGHT = _lpipStateManager.webCamTexture.requestedHeight;
         
         //GAME_WINDOW_HEIGHT = Display.main.systemHeight;
-        GAME_WINDOW_HEIGHT = Display.displays[_laserPointerInputManager.PROJECTOR_DISPLAY_ID].systemHeight;
+        GAME_WINDOW_HEIGHT = Display.displays[_lpipStateManager.PROJECTOR_DISPLAY_ID].systemHeight;
         //GAME_WINDOW_WIDTH = Display.main.systemWidth;
-        GAME_WINDOW_WIDTH = Display.displays[_laserPointerInputManager.PROJECTOR_DISPLAY_ID].systemWidth;
+        GAME_WINDOW_WIDTH = Display.displays[_lpipStateManager.PROJECTOR_DISPLAY_ID].systemWidth;
         
         //LPIPMouseEmulation.Instance.maxWidth = GAME_WINDOW_WIDTH;
         //LPIPMouseEmulation.Instance.maxHeight = GAME_WINDOW_HEIGHT;
@@ -58,7 +58,7 @@ public class LaserPointerInputSetUp : LaserPointerInputBaseState
         Debug.LogWarning($"Window res factor is: {GAME_WINDOW_FACTORX}:{GAME_WINDOW_FACTORY}");
 
         SaveData();
-        _laserPointerInputManager.SwitchState(_laserPointerInputManager.calibrationState);
+        _lpipStateManager.SwitchState(_lpipStateManager.ManualCalibrationStateState);
     }
 
     public override void UpdateState()
@@ -67,16 +67,16 @@ public class LaserPointerInputSetUp : LaserPointerInputBaseState
     
     void ConfigureWebcam(int width, int height, int fps)
     {
-        _laserPointerInputManager.webCamTexture.requestedFPS = fps;
-        _laserPointerInputManager.webCamTexture.requestedWidth = width;
-        _laserPointerInputManager.webCamTexture.requestedHeight = height;
+        _lpipStateManager.webCamTexture.requestedFPS = fps;
+        _lpipStateManager.webCamTexture.requestedWidth = width;
+        _lpipStateManager.webCamTexture.requestedHeight = height;
     }
     
     void LogWebcamInfo()
     {
-        Debug.Log($"\nCurrent camera configuration:\nFPS: {_laserPointerInputManager.webCamTexture.requestedFPS}\nRes: {_laserPointerInputManager.webCamTexture.width}x{_laserPointerInputManager.webCamTexture.height}");
+        Debug.Log($"\nCurrent camera configuration:\nFPS: {_lpipStateManager.webCamTexture.requestedFPS}\nRes: {_lpipStateManager.webCamTexture.width}x{_lpipStateManager.webCamTexture.height}");
         DebugText.instance.AddText(
-            $"Current camera configuration:\nFPS: {_laserPointerInputManager.webCamTexture.requestedFPS}\nRes: {_laserPointerInputManager.webCamTexture.width}x{_laserPointerInputManager.webCamTexture.height}", DebugText.DebugTextGroup.Resolution);
+            $"Current camera configuration:\nFPS: {_lpipStateManager.webCamTexture.requestedFPS}\nRes: {_lpipStateManager.webCamTexture.width}x{_lpipStateManager.webCamTexture.height}", DebugText.DebugTextGroup.Resolution);
     }
 
     void SaveData()
@@ -89,7 +89,7 @@ public class LaserPointerInputSetUp : LaserPointerInputBaseState
             GAME_WINDOW_FACTORY = GAME_WINDOW_FACTORY
         };
 
-        _laserPointerInputManager.SetWindowData(windowData);
+        _lpipStateManager.SetWindowData(windowData);
 
         CameraData cameraData = new CameraData
         {
@@ -97,6 +97,6 @@ public class LaserPointerInputSetUp : LaserPointerInputBaseState
             CAMERA_HEIGHT = CAMERA_HEIGHT
         };
 
-        _laserPointerInputManager.SetCameraData(cameraData);
+        _lpipStateManager.SetCameraData(cameraData);
     }
 }

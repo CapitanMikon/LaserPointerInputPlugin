@@ -3,16 +3,16 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine;
 
-public class LaserPointerInputManager : MonoBehaviour
+public class LPIPStateManager : MonoBehaviour
 {
-    private LaserPointerInputBaseState currentState;
+    private LPIPBaseState currentState;
 
-    public LaserPointerInputSetUp setUpState = new LaserPointerInputSetUp();
-    public LaserPointerInputCalibration calibrationState = new LaserPointerInputCalibration();
-    public LaserPointerInputInOperation inOperationState = new LaserPointerInputInOperation();
-    public LaserPointerInputOffline offlineState = new LaserPointerInputOffline();
+    public LPIPInitializationState InitializationStateState = new LPIPInitializationState();
+    public LPIPManualCalibrationState ManualCalibrationStateState = new LPIPManualCalibrationState();
+    public LPIPRunningState RunningStateState = new LPIPRunningState();
+    public LPIPStanbyState StanbyStateState = new LPIPStanbyState();
 
-    private CallibrationData _callibrationData;
+    private LPIPCalibrationData _lpipCalibrationData;
     private CameraData _cameraData;
     private WindowData _windowData;
     
@@ -32,7 +32,7 @@ public class LaserPointerInputManager : MonoBehaviour
     void Start()
     {
         ResetMarkerSpritePosition();
-        currentState = offlineState;
+        currentState = StanbyStateState;
         currentState.EnterState(this);
     }
     
@@ -41,7 +41,7 @@ public class LaserPointerInputManager : MonoBehaviour
         currentState.UpdateState();
     }
 
-    public void SwitchState(LaserPointerInputBaseState state)
+    public void SwitchState(LPIPBaseState state)
     {
         currentState = state;
         state.EnterState(this);
@@ -68,14 +68,14 @@ public class LaserPointerInputManager : MonoBehaviour
         markerSprite.transform.position = markerDefaultPosition;
     }
 
-    public void SetCalibrationData(CallibrationData data)
+    public void SetCalibrationData(LPIPCalibrationData data)
     {
-        _callibrationData = data;
+        _lpipCalibrationData = data;
     }
 
-    public CallibrationData GetCallibrationData()
+    public LPIPCalibrationData GetCalibrationData()
     {
-        return _callibrationData;
+        return _lpipCalibrationData;
     }
     
     public void SetCameraData(CameraData data)

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public struct CallibrationData
+public struct LPIPCalibrationData
 {
     public Pair restrictionTopLeft;
     public Pair restrictionBottomRight;

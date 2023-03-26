@@ -1,9 +1,9 @@
 using UnityEngine;
 using System;
 
-public class LaserPointerInputCalibration : LaserPointerInputBaseState
+public class LPIPManualCalibrationState : LPIPBaseState
 {
-    private LaserPointerInputManager _laserPointerInputManager;
+    private LPIPStateManager _lpipStateManager;
 
     private bool isCalibrating;
     private bool firstClick ;
@@ -34,10 +34,10 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
 
     private int clickCounter;
 
-    public override void EnterState(LaserPointerInputManager laserPointerInputManager)
+    public override void EnterState(LPIPStateManager lpipStateManager)
     {
         Debug.Log("STATE: Calibration");
-        _laserPointerInputManager = laserPointerInputManager;
+        _lpipStateManager = lpipStateManager;
         Initialize();
         //try load saved calibration
         //else start anew
@@ -92,8 +92,8 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
         isCalibrating = false;
         firstClick = true;
         clickCounter = 0;
-        _windowData = _laserPointerInputManager.GetWindowData();
-        _cameraData = _laserPointerInputManager.GetCameraData();
+        _windowData = _lpipStateManager.GetWindowData();
+        _cameraData = _lpipStateManager.GetCameraData();
         
         ideal[0].x = 0;
         ideal[0].y = 0;
@@ -124,25 +124,25 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
         SaveCalibrationData();
         Debug.Log("Calibrating ended.");
         isCalibrating = false;
-        _laserPointerInputManager.SwitchState(_laserPointerInputManager.inOperationState);
+        _lpipStateManager.SwitchState(_lpipStateManager.RunningStateState);
     }
 
     private void RestartCalibration()
     {
         Debug.Log("Restarting calibration.");
-        _laserPointerInputManager.SwitchState(_laserPointerInputManager.calibrationState);
+        _lpipStateManager.SwitchState(_lpipStateManager.ManualCalibrationStateState);
     }
     
     private void CancelCalibration()
     {
         LPIPMouseEmulation.Instance.HideCameraFeed();
         Debug.Log("Cancelling calibration.");
-        _laserPointerInputManager.SwitchState(_laserPointerInputManager.setUpState);
+        _lpipStateManager.SwitchState(_lpipStateManager.InitializationStateState);
     }
 
     private void SaveCalibrationData()
     {
-        CallibrationData _calibrationData = new CallibrationData
+        LPIPCalibrationData _calibrationData = new LPIPCalibrationData
         {
             restrictionTopLeft = restrictionTopLeft,
             restrictionBottomRight = restrictionBottomRight,
@@ -152,6 +152,6 @@ public class LaserPointerInputCalibration : LaserPointerInputBaseState
             ideal = ideal,
         };
 
-        _laserPointerInputManager.SetCalibrationData(_calibrationData);
+        _lpipStateManager.SetCalibrationData(_calibrationData);
     }
 }

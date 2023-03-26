@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LaserPointerInputOffline : LaserPointerInputBaseState
+public class LPIPStanbyState : LPIPBaseState
 {
-    private LaserPointerInputManager _laserPointerInputManager;
+    private LPIPStateManager _lpipStateManager;
     
-    public override void EnterState(LaserPointerInputManager laserPointerInputManager)
+    public override void EnterState(LPIPStateManager lpipStateManager)
     {
         Debug.Log("STATE: OFFLINE");
-        _laserPointerInputManager = laserPointerInputManager;
+        _lpipStateManager = lpipStateManager;
     }
 
     public override void UpdateState()
@@ -23,6 +23,6 @@ public class LaserPointerInputOffline : LaserPointerInputBaseState
     private void StartCalibration()
     {
         Debug.LogWarning("Laser input module is now online!");
-        _laserPointerInputManager.SwitchState(_laserPointerInputManager.setUpState);
+        _lpipStateManager.SwitchState(_lpipStateManager.InitializationStateState);
     }
 }
