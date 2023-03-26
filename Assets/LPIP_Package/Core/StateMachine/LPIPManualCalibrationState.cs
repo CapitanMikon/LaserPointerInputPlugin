@@ -124,20 +124,20 @@ public class LPIPManualCalibrationState : LPIPBaseState
         SaveCalibrationData();
         Debug.Log("Calibrating ended.");
         isCalibrating = false;
-        _lpipCoreManager.SwitchState(_lpipCoreManager.RunningStateState);
+        _lpipCoreManager.SwitchState(_lpipCoreManager.RunningState);
     }
 
     private void RestartCalibration()
     {
         Debug.Log("Restarting calibration.");
-        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationStateState);
+        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
     }
     
     private void CancelCalibration()
     {
         LPIPMouseEmulation.Instance.HideCameraFeed();
         Debug.Log("Cancelling calibration.");
-        _lpipCoreManager.SwitchState(_lpipCoreManager.InitializationStateState);
+        _lpipCoreManager.SwitchState(_lpipCoreManager.InitializationState);
     }
 
     private void SaveCalibrationData()

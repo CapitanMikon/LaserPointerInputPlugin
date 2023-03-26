@@ -58,7 +58,7 @@ public class LPIPInitializationState : LPIPBaseState
         Debug.LogWarning($"Window res factor is: {GAME_WINDOW_FACTORX}:{GAME_WINDOW_FACTORY}");
 
         SaveData();
-        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationStateState);
+        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
     }
 
     public override void UpdateState()

@@ -56,7 +56,7 @@ public class LPIPRunningState : LPIPBaseState
             LPIPMouseEmulation.Instance.HideCameraFeed();
         }else if (Input.GetKeyDown(KeyCode.F5))
         {
-            _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationStateState);
+            _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
         }
         if (beginNoLaserProcedure)
         {

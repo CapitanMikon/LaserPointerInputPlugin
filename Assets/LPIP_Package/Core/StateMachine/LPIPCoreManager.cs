@@ -6,10 +6,11 @@ using UnityEngine;
 
 public class LPIPCoreManager : MonoBehaviour
 {
-    public LPIPInitializationState InitializationStateState { get; private set; }
-    public LPIPManualCalibrationState ManualCalibrationStateState{get; private set;}
-    public LPIPRunningState RunningStateState { get; private set; }
-    public LPIPStanbyState StanbyStateState { get; private set; }
+    public LPIPBaseState InitializationState { get; private set; }
+    public LPIPBaseState ManualCalibrationState {get; private set;}
+    //public LPIPBaseState AutomaticCalibrationState {get; private set;}
+    public LPIPBaseState RunningState { get; private set; }
+    public LPIPBaseState StandbyState { get; private set; }
 
     
     private LPIPBaseState _currentState;
@@ -32,16 +33,17 @@ public class LPIPCoreManager : MonoBehaviour
 
     private void Awake()
     {
-        InitializationStateState = new LPIPInitializationState();
-        ManualCalibrationStateState = new LPIPManualCalibrationState();
-        RunningStateState = new LPIPRunningState();
-        StanbyStateState = new LPIPStanbyState();
+        InitializationState = new LPIPInitializationState();
+        ManualCalibrationState = new LPIPManualCalibrationState();
+        //AutomaticCalibrationState = new LPIPAutomaticCalibrationState();
+        RunningState = new LPIPRunningState();
+        StandbyState = new LPIPStandbyState();
     }
 
     void Start()
     {
         ResetLaserMarkerPos();
-        _currentState = StanbyStateState;
+        _currentState = StandbyState;
         _currentState.EnterState(this);
     }
     
