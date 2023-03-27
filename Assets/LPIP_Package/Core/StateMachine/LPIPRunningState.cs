@@ -112,17 +112,17 @@ public class LPIPRunningState : LPIPBaseState
     
     public void StartLaserDetection()
     {
-        _lpipCoreManager.InvokeDetectionStartedEvent();
         laserDetectionIsEnabled = true;
+        _lpipCoreManager.InvokeDetectionStartedEvent();
         Debug.Log("Started laser detection.");
     }
     
     public void StopLaserDetection()
     {
-        _lpipCoreManager.InvokeDetectionStoppedEvent();
         laserDetectionIsEnabled = false;
+        _lpipCoreManager.InvokeDetectionStoppedEvent();
         Debug.Log("Stopped laser detection.");
-        _lpipCoreManager.ResetLaserMarkerPos();
+        _lpipCoreManager.ResetLaserMarkerPos(); //todo move to lpipcore manager to subscribe to event that is invoking in this method
     }
     
     private void UpdateBorders(int x, int y, double luminance)
@@ -163,11 +163,8 @@ public class LPIPRunningState : LPIPBaseState
         var centerY = (top.value + bottom.value) / 2;
         
         var result = Project(new Vector2(centerX, centerY));
-        
-        LPIPMouseEmulation.Instance.SetMouseClickPositions(result.x, result.y);
-        
-        _lpipCoreManager.InvokeOnLaserPointerInputDetectedEvent();
-        _lpipCoreManager.UpdateLaserMarkerPos(result.x, result.y);
+        _lpipCoreManager.InvokeOnLaserPointerInputDetectedEvent(result);
+        //_lpipCoreManager.UpdateLaserMarkerPos(result.x, result.y);
     }
 
     void ResetBorders()

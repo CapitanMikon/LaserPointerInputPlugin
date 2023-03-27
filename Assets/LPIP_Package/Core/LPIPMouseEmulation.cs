@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -5,15 +6,15 @@ using UnityEngine.UI;
 
 public class LPIPMouseEmulation : MonoBehaviour
 {
-    public static LPIPMouseEmulation Instance;
-    
-    private float x, y;
-    
+    private static LPIPMouseEmulation Instance;
+
     private List<RaycastResult> _guiRaycastResults;
     private PointerEventData _pointerEventData;
 
+    private bool isUIDetected;
     void Awake()
     {
+        isUIDetected = false;
         _guiRaycastResults = new List<RaycastResult>();
             
         if (Instance == null)
@@ -22,17 +23,24 @@ public class LPIPMouseEmulation : MonoBehaviour
         }
     }
 
-    public void SetMouseClickPositions(float x, float y)
+    private void OnEnable()
     {
-        this.x = x;
-        this.y = y;
+        LPIPCoreManager.OnLaserHitDetectedEvent += EmulateLeftMouseClick;
     }
 
-    public void PerformLeftMouseClick()
+    private void OnDisable()
     {
+        LPIPCoreManager.OnLaserHitDetectedEvent -= EmulateLeftMouseClick;
+    }
+
+    public void EmulateLeftMouseClick(Vector2 clickPosition)
+    {
+        //Debug.LogWarning($"Emulated LMB Click at {clickPosition}");
+        
+        isUIDetected = false;
         //Set the Pointer Event Position
         _pointerEventData = new PointerEventData(EventSystem.current);
-        _pointerEventData.position = new Vector2(x,y);
+        _pointerEventData.position = clickPosition;
  
         //list of Raycast Results
         _guiRaycastResults.Clear();
@@ -51,6 +59,7 @@ public class LPIPMouseEmulation : MonoBehaviour
                 {
                     button.onClick?.Invoke();
                     s+= $"{r.gameObject.name}";
+                    isUIDetected = true;
                     break;
                 }
             }
@@ -59,7 +68,14 @@ public class LPIPMouseEmulation : MonoBehaviour
         
         
         //since we want to prioritize UI buttons we wont cast ray if we hit UI button
-        if (_guiRaycastResults.Count == 0)
+        /*string guihitres = "";
+        foreach (var c in _guiRaycastResults)
+        {
+            guihitres += " " + c.gameObject.name;
+        }
+        
+        Debug.LogError($"_guiRaycastResults.Count = {_guiRaycastResults.Count} result = [{guihitres}]");*/
+        if (!isUIDetected)
         {
             if (Camera.main == null)
             {
@@ -67,7 +83,7 @@ public class LPIPMouseEmulation : MonoBehaviour
                 return;
             }
             
-            Ray ray = Camera.main.ScreenPointToRay(new Vector3(x, y, 0));
+            Ray ray = Camera.main.ScreenPointToRay(clickPosition);
             if (Physics.Raycast(ray, out var hit, 100))
             {
                 if (hit.collider.TryGetComponent(out LPIPIInteractable laserInteractable))
@@ -76,9 +92,8 @@ public class LPIPMouseEmulation : MonoBehaviour
                 }
             }
             DebugText.instance.ResetText(DebugText.DebugTextGroup.MouseClickPos);
-            DebugText.instance.AddText($"Mouse click emulated at: {x},{y}", DebugText.DebugTextGroup.MouseClickPos);
+            DebugText.instance.AddText($"Mouse click emulated at: {clickPosition}", DebugText.DebugTextGroup.MouseClickPos);
         }
-
     }
 
 }

@@ -26,9 +26,8 @@ public class LPIPCoreManager : MonoBehaviour
     public static event Action<LPIPManualCalibrationState.LPIPCalibrationResult> OnCalibrationFinishedEvent;
     public static event Action OnDetectionStartedEvent;
     public static event Action OnDetectionStoppedEvent;
-    
-    [SerializeField] private UnityEvent OnLaserInputRegistered; 
-    
+    public static event Action<Vector2> OnLaserHitDetectedEvent;
+
     public WebCamTexture webCamTexture;
 
     public int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
@@ -64,9 +63,12 @@ public class LPIPCoreManager : MonoBehaviour
         _currentState.EnterState(this);
     }
 
-    public void InvokeOnLaserPointerInputDetectedEvent()
+    public void InvokeOnLaserPointerInputDetectedEvent(Vector2 clickPosition)
     {
-        OnLaserInputRegistered?.Invoke();
+        Debug.LogWarning($"Fired event OnLaserHitDetectedEvent");
+        //LPIPMouseEmulation.Instance.EmulateLeftMouseClick(clickPosition.x, clickPosition.y);
+        UpdateLaserMarkerPos(clickPosition.x, clickPosition.y);
+        OnLaserHitDetectedEvent?.Invoke(clickPosition);
     }
     
     public void InvokeCalibrationEndedEvent(LPIPManualCalibrationState.LPIPCalibrationResult result)

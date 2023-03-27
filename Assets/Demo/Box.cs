@@ -28,6 +28,7 @@ public class Box : MonoBehaviour, LPIPIInteractable
 
     public void LPIPOnLaserHit()
     {
+        //Debug.Log($"Clicked on cube {name}");
         rb.useGravity = true;
         rb.AddForce(Vector3.Normalize(transform.position - Camera.main.transform.position) * force);
         
