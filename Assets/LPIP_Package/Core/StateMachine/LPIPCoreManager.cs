@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine;
 
@@ -12,7 +10,6 @@ public class LPIPCoreManager : MonoBehaviour
     //public LPIPBaseState AutomaticCalibrationState {get; private set;}
     public LPIPBaseState RunningState { get; private set; }
     public LPIPBaseState StandbyState { get; private set; }
-
     
     private LPIPBaseState _currentState;
 
@@ -26,14 +23,12 @@ public class LPIPCoreManager : MonoBehaviour
     public static event Action<LPIPManualCalibrationState.LPIPCalibrationResult> OnCalibrationFinishedEvent;
     public static event Action OnDetectionStartedEvent;
     public static event Action OnDetectionStoppedEvent;
-    public static event Action<Vector2> OnLaserHitDetectedEvent;
+    public static event Action<Vector2> OnLaserHitDownDetectedEvent;
+    public static event Action<Vector2> OnLaserHitUpDetectedEvent;
 
     public WebCamTexture webCamTexture;
 
     public int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
-    
-    private readonly Vector3 _laserPointerMarketDefaultPosition = new Vector3(-100, -100, 0);
-    [SerializeField] private GameObject markerSprite;
 
     private void Awake()
     {
@@ -46,7 +41,6 @@ public class LPIPCoreManager : MonoBehaviour
 
     void Start()
     {
-        ResetLaserMarkerPos();
         _currentState = StandbyState;
         _currentState.EnterState(this);
     }
@@ -63,12 +57,16 @@ public class LPIPCoreManager : MonoBehaviour
         _currentState.EnterState(this);
     }
 
-    public void InvokeOnLaserPointerInputDetectedEvent(Vector2 clickPosition)
+    public void InvokeOnLaserHitDownDetectedEvent(Vector2 clickPosition)
     {
-        Debug.LogWarning($"Fired event OnLaserHitDetectedEvent");
-        //LPIPMouseEmulation.Instance.EmulateLeftMouseClick(clickPosition.x, clickPosition.y);
-        UpdateLaserMarkerPos(clickPosition.x, clickPosition.y);
-        OnLaserHitDetectedEvent?.Invoke(clickPosition);
+        Debug.LogWarning($"Fired event OnLaserHitDownDetectedEvent = {clickPosition}");
+        OnLaserHitDownDetectedEvent?.Invoke(clickPosition);
+    }
+    
+    public void InvokeOnLaserHitUpDetectedEvent(Vector2 clickPosition)
+    {
+        Debug.LogWarning($"Fired event OnLaserHitUpDetectedEvent = {clickPosition}");
+        OnLaserHitUpDetectedEvent?.Invoke(clickPosition);
     }
     
     public void InvokeCalibrationEndedEvent(LPIPManualCalibrationState.LPIPCalibrationResult result)
@@ -96,16 +94,5 @@ public class LPIPCoreManager : MonoBehaviour
         Debug.LogWarning($"Fired event OnDetectionStoppedEvent");
         
         OnDetectionStoppedEvent?.Invoke();
-    }
-
-    public void UpdateLaserMarkerPos(float x, float y)
-    {
-        markerSprite.transform.position = new Vector3(x, y, 0);
-    }
-    
-    public void ResetLaserMarkerPos()
-    {
-        Debug.LogWarning("Marker was reset off screen!");
-        markerSprite.transform.position = _laserPointerMarketDefaultPosition;
     }
 }

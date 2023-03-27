@@ -6,8 +6,7 @@ public class LPIPManualCalibrationState : LPIPBaseState
     private LPIPCoreManager _lpipCoreManager;
 
     private bool isCalibrating;
-    private bool firstClick;
-    
+
     private int clickCounter;
 
     private Pair restrictionTopLeft;
@@ -97,7 +96,6 @@ public class LPIPManualCalibrationState : LPIPBaseState
     private void Initialize()
     {
         isCalibrating = false;
-        firstClick = true;
         clickCounter = 0;
         _windowData = _lpipCoreManager.WindowData;
         

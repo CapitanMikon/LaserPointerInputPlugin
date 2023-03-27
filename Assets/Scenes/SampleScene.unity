@@ -994,11 +994,6 @@ Transform:
   m_Father: {fileID: 1827044810}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1218459519 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6610667984742326987, guid: 4a92fdca77eac824a8cf2ba5fe53ba2a, type: 3}
-  m_PrefabInstance: {fileID: 6610667983528072628}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1350268920
 GameObject:
   m_ObjectHideFlags: 0
@@ -1510,11 +1505,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6610667985146062155, guid: 4a92fdca77eac824a8cf2ba5fe53ba2a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 935
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6610667985146062155, guid: 4a92fdca77eac824a8cf2ba5fe53ba2a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 515
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6610667985146062155, guid: 4a92fdca77eac824a8cf2ba5fe53ba2a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1558,28 +1553,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 1350268921}
     m_Modifications:
     - target: {fileID: 7007035413491464332, guid: 161d5edc6900e7c4aa92b5ee6880357e, type: 3}
-      propertyPath: markerSprite
-      value: 
-      objectReference: {fileID: 1218459519}
-    - target: {fileID: 7007035413491464332, guid: 161d5edc6900e7c4aa92b5ee6880357e, type: 3}
       propertyPath: webcamImageHolder
       value: 
       objectReference: {fileID: 1641993144}
-    - target: {fileID: 7007035413491464332, guid: 161d5edc6900e7c4aa92b5ee6880357e, type: 3}
-      propertyPath: PROJECTOR_DISPLAY_ID
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7007035413667044254, guid: 161d5edc6900e7c4aa92b5ee6880357e, type: 3}
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7007035413667044254, guid: 161d5edc6900e7c4aa92b5ee6880357e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 935
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7007035413667044254, guid: 161d5edc6900e7c4aa92b5ee6880357e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 515
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7007035413667044254, guid: 161d5edc6900e7c4aa92b5ee6880357e, type: 3}
       propertyPath: m_LocalPosition.z

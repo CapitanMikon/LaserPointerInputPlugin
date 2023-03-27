@@ -6,38 +6,39 @@ using UnityEngine.UI;
 
 public class LPIPMouseEmulation : MonoBehaviour
 {
-    private static LPIPMouseEmulation Instance;
+    //private static LPIPMouseEmulation Instance;
 
     private List<RaycastResult> _guiRaycastResults;
     private PointerEventData _pointerEventData;
 
-    private bool isUIDetected;
-    void Awake()
+    private bool _isUIDetected;
+    
+    private void Awake()
     {
-        isUIDetected = false;
+        _isUIDetected = false;
         _guiRaycastResults = new List<RaycastResult>();
             
-        if (Instance == null)
+        /*if (Instance == null)
         {
             Instance = this;
-        }
+        }*/
     }
 
     private void OnEnable()
     {
-        LPIPCoreManager.OnLaserHitDetectedEvent += EmulateLeftMouseClick;
+        LPIPCoreManager.OnLaserHitDownDetectedEvent += EmulateLeftMouseClick;
     }
 
     private void OnDisable()
     {
-        LPIPCoreManager.OnLaserHitDetectedEvent -= EmulateLeftMouseClick;
+        LPIPCoreManager.OnLaserHitDownDetectedEvent -= EmulateLeftMouseClick;
     }
 
-    public void EmulateLeftMouseClick(Vector2 clickPosition)
+    private void EmulateLeftMouseClick(Vector2 clickPosition)
     {
         //Debug.LogWarning($"Emulated LMB Click at {clickPosition}");
         
-        isUIDetected = false;
+        _isUIDetected = false;
         //Set the Pointer Event Position
         _pointerEventData = new PointerEventData(EventSystem.current);
         _pointerEventData.position = clickPosition;
@@ -59,7 +60,7 @@ public class LPIPMouseEmulation : MonoBehaviour
                 {
                     button.onClick?.Invoke();
                     s+= $"{r.gameObject.name}";
-                    isUIDetected = true;
+                    _isUIDetected = true;
                     break;
                 }
             }
@@ -68,14 +69,7 @@ public class LPIPMouseEmulation : MonoBehaviour
         
         
         //since we want to prioritize UI buttons we wont cast ray if we hit UI button
-        /*string guihitres = "";
-        foreach (var c in _guiRaycastResults)
-        {
-            guihitres += " " + c.gameObject.name;
-        }
-        
-        Debug.LogError($"_guiRaycastResults.Count = {_guiRaycastResults.Count} result = [{guihitres}]");*/
-        if (!isUIDetected)
+        if (!_isUIDetected)
         {
             if (Camera.main == null)
             {

@@ -13,6 +13,8 @@ public class LPIPRunningState : LPIPBaseState
     
     private const int EMPTY_FRAMES_THRESHOLD = 5;
     private int emptyFrames = 0;
+
+    private int detectedFrames = 0; // detect laser and fire event every 9.8 frames avg z toho ako dlho svieti laser
     
     //source of const: https://stackoverflow.com/questions/596216/formula-to-determine-perceived-brightness-of-rgb-color
     private const double R_VALUE = 0.299;
@@ -31,6 +33,8 @@ public class LPIPRunningState : LPIPBaseState
     private LPIPCalibrationData _lpipCalibrationData;
     private CameraData _cameraData;
     private WindowData _windowData;
+
+    private Vector3 _lastPosition;
     
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
@@ -62,7 +66,7 @@ public class LPIPRunningState : LPIPBaseState
         {
             if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
             {
-                _lpipCoreManager.ResetLaserMarkerPos();
+                _lpipCoreManager.InvokeOnLaserHitUpDetectedEvent(_lastPosition);
                 emptyFrames = 0;
                 beginNoLaserProcedure = false;
             }
@@ -98,6 +102,12 @@ public class LPIPRunningState : LPIPBaseState
                 UpdateMarkerImage();
                 updateMarker = false;
                 beginNoLaserProcedure = true;
+                detectedFrames++;
+            }
+            else if(detectedFrames != 0)
+            {
+                Debug.LogWarning($"No of Frames that detected laser: {detectedFrames}!");
+                detectedFrames = 0;
             }
         
             ResetBorders();
@@ -121,8 +131,7 @@ public class LPIPRunningState : LPIPBaseState
     {
         laserDetectionIsEnabled = false;
         _lpipCoreManager.InvokeDetectionStoppedEvent();
-        Debug.Log("Stopped laser detection.");
-        _lpipCoreManager.ResetLaserMarkerPos(); //todo move to lpipcore manager to subscribe to event that is invoking in this method
+        Debug.Log("Stopped laser detection."); 
     }
     
     private void UpdateBorders(int x, int y, double luminance)
@@ -163,8 +172,8 @@ public class LPIPRunningState : LPIPBaseState
         var centerY = (top.value + bottom.value) / 2;
         
         var result = Project(new Vector2(centerX, centerY));
-        _lpipCoreManager.InvokeOnLaserPointerInputDetectedEvent(result);
-        //_lpipCoreManager.UpdateLaserMarkerPos(result.x, result.y);
+        _lastPosition = result;
+        _lpipCoreManager.InvokeOnLaserHitDownDetectedEvent(result);
     }
 
     void ResetBorders()

@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7007035413055836378}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -315.5733, y: -264.50473, z: 489.73364}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -69,7 +69,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7007035413491464334}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -315.5733, y: -264.50473, z: 489.73364}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -89,24 +89,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   webcamImageHolder: {fileID: 0}
-  OnLaserInputRegistered:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7007035413055836377}
-        m_TargetAssemblyTypeName: VirtualMouse, Assembly-CSharp
-        m_MethodName: PerformLeftMouseClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
   webCamTexture: {fileID: 0}
   PROJECTOR_DISPLAY_ID: 0
-  markerSprite: {fileID: 0}
 --- !u!1 &7007035413667044255
 GameObject:
   m_ObjectHideFlags: 0
