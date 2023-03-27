@@ -547,7 +547,7 @@ GameObject:
   - component: {fileID: 6610667985146062155}
   - component: {fileID: 1620095232}
   m_Layer: 0
-  m_Name: LPIP_CalibrationUI
+  m_Name: DEPRECATED_LPIP_CalibrationUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

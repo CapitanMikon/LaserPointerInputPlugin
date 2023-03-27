@@ -58,10 +58,13 @@ public class LPIPMouseEmulation : MonoBehaviour
                 r.gameObject.TryGetComponent(out Button button);
                 if (button != null)
                 {
-                    button.onClick?.Invoke();
-                    s+= $"{r.gameObject.name}";
-                    _isUIDetected = true;
-                    break;
+                    if (button.interactable)
+                    {
+                        button.onClick?.Invoke();
+                        s+= $"{r.gameObject.name}";
+                        _isUIDetected = true;
+                        break;
+                    }
                 }
             }
 
