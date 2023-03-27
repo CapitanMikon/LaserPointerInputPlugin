@@ -95,4 +95,31 @@ public class LPIPCoreManager : MonoBehaviour
         
         OnDetectionStoppedEvent?.Invoke();
     }
+
+    public void StartLPIP()
+    {
+        Debug.LogWarning("LPIP Start requested!");
+        if (_currentState != StandbyState)
+        {
+            Debug.LogWarning($"State transition from {_currentState} -> {InitializationState} is not allowed!");
+            return;
+        }
+        SwitchState(InitializationState);
+    }
+    
+    public void RecalibrateLPIP()
+    {
+        Debug.LogWarning("LPIP Recalibration requested!");
+        if (_currentState != RunningState)
+        {
+            Debug.LogWarning($"State transition from {_currentState} -> {RunningState} is not allowed!");
+            return;
+        }
+
+        if (_currentState == ManualCalibrationState)
+        {
+            InvokeCalibrationEndedEvent(LPIPManualCalibrationState.LPIPCalibrationResult.Restart);
+        }
+        SwitchState(ManualCalibrationState);
+    }
 }

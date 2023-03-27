@@ -77,14 +77,14 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
                 clickCounter++;
             }
-            else if (Input.GetKeyDown(KeyCode.R))
+            /*else if (Input.GetKeyDown(KeyCode.R))
             {
                 RestartCalibration();
             }
             else if (Input.GetKeyDown(KeyCode.Escape))
             {
                 //CancelCalibration();
-            }
+            }*/
         }
     }
     
@@ -131,7 +131,7 @@ public class LPIPManualCalibrationState : LPIPBaseState
         _lpipCoreManager.SwitchState(_lpipCoreManager.RunningState);
     }
 
-    private void RestartCalibration()
+    /*private void RestartCalibration()
     {
         _lpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Restart);
         Debug.Log("Restarting calibration. Fired event!");
@@ -143,7 +143,7 @@ public class LPIPManualCalibrationState : LPIPBaseState
         _lpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Cancel);
         Debug.Log("Cancelling calibration. Fired event!");
         _lpipCoreManager.SwitchState(_lpipCoreManager.InitializationState);
-    }
+    }*/
 
     private void SaveCalibrationData()
     {

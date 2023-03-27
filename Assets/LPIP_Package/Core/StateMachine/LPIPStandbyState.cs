@@ -14,10 +14,10 @@ public class LPIPStandbyState : LPIPBaseState
 
     public override void UpdateState()
     {
-        if (Input.GetKeyDown(KeyCode.C))
+        /*if (Input.GetKeyDown(KeyCode.C))
         {
             StartCalibration();
-        }
+        }*/
     }
 
     public override void ExitState()
@@ -25,9 +25,9 @@ public class LPIPStandbyState : LPIPBaseState
         Debug.Log("Leaving state {LPIPStandbyState}");
     }
 
-    private void StartCalibration()
+    /*private void StartCalibration()
     {
         Debug.LogWarning("Laser input module is now online!");
         _lpipCoreManager.SwitchState(_lpipCoreManager.InitializationState);
-    }
+    }*/
 }

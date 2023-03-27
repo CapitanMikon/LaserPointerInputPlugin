@@ -64,7 +64,11 @@ public class LPIPMouseEmulation : MonoBehaviour
                     break;
                 }
             }
-            Debug.LogWarning($"GUI button object: {s} was hit!");
+
+            if (!s.Equals(""))
+            {
+                Debug.LogWarning($"GUI button object: {s} was hit!");
+            }
         }
         
         

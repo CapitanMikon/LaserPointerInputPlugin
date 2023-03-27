@@ -52,7 +52,7 @@ public class LPIPRunningState : LPIPBaseState
 
     public override void UpdateState()
     {
-        if (Input.GetKeyDown(KeyCode.F1))
+        /*if (Input.GetKeyDown(KeyCode.F1))
         {
             LPIPCalibrationUIController.Instance.ShowCameraFeed();
         }else if(Input.GetKeyDown(KeyCode.F2))
@@ -61,7 +61,7 @@ public class LPIPRunningState : LPIPBaseState
         }else if (Input.GetKeyDown(KeyCode.F5))
         {
             _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
-        }
+        }*/
         if (beginNoLaserProcedure)
         {
             if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
