@@ -1,5 +1,5 @@
 # Laser Pointer Input Plugin (LPIP)
-bachelor degree project
+Bachelor's Thesis code repo
 
 LPIP - Laser Pointer Input Plugin
 
