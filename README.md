@@ -1,4 +1,4 @@
-# LaserGunBC
+# Laser Pointer Input Plugin (LPIP)
 bachelor degree project
 
 LPIP - Laser Pointer Input Plugin
