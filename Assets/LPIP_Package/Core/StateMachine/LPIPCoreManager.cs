@@ -50,7 +50,7 @@ public class LPIPCoreManager : MonoBehaviour
     {
         if (_currentState == InitializationState)
         {
-            return state == ManualCalibrationState;// || state == AutomaticCalibrationState;
+            return state == ManualCalibrationState || state == InitializationState;// || state == AutomaticCalibrationState;
         }
         if (_currentState == ManualCalibrationState)// || state == AutomaticCalibrationState)
         {
@@ -58,7 +58,7 @@ public class LPIPCoreManager : MonoBehaviour
         }
         if (_currentState == RunningState)
         {
-            return state == ManualCalibrationState || state == InitializationState;// || state == AutomaticCalibrationState;
+            return state == ManualCalibrationState || state == StandbyState;// || state == AutomaticCalibrationState;
         }
         if (_currentState == StandbyState)
         {
@@ -127,7 +127,13 @@ public class LPIPCoreManager : MonoBehaviour
         SwitchState(InitializationState);
     }
     
-    public void RecalibrateLPIP()
+    public void ResetLPIP()
+    {
+        Debug.LogWarning("LPIP Reset requested!");
+        SwitchState(StandbyState);
+    }
+    
+    public void ReCalibrateLPIP()
     {
         Debug.LogWarning("LPIP Recalibration requested!");
         SwitchState(ManualCalibrationState);

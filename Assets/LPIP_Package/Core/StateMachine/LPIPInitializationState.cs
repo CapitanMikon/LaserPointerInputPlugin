@@ -24,7 +24,7 @@ public class LPIPInitializationState : LPIPBaseState
         _webCamTexture = _lpipCoreManager.WebCamTexture;
         Initialize();
         SaveData();
-        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
+        //_lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
     }
 
     public override void UpdateState()

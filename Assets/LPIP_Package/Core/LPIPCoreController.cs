@@ -5,8 +5,7 @@ public class LPIPCoreController : MonoBehaviour
   [SerializeField] private LPIPCoreManager _lpipCoreManager;
 
   public static LPIPCoreController Instance;
-
-  private bool isFirstLaunch = true;
+  
   private bool isWebCamTextureConfigured = false;
   private bool isProjectorIdConfigured = false;
 
@@ -18,29 +17,29 @@ public class LPIPCoreController : MonoBehaviour
       }
   }
 
-  public void ActivateLPIP()
+  public void InitializeLPIP()
   {
-      if (isFirstLaunch && isWebCamTextureConfigured && isProjectorIdConfigured)
+      if (isWebCamTextureConfigured && isProjectorIdConfigured)
       {
         _lpipCoreManager.StartLPIP();
-        isFirstLaunch = false;
       }
       else
       {
-          if (!isFirstLaunch)
-          {
-              Debug.LogWarning("LPIP may be activated only once!");
-          }
           if (!(isWebCamTextureConfigured && isProjectorIdConfigured))
           {
               Debug.LogError("WebCamTexture and ProjectorId is not configured!");
           }
       }
   }
-
-  public void RecalibrateLPIP()
+  
+  public void ResetLPIP()
   {
-      _lpipCoreManager.RecalibrateLPIP();
+     _lpipCoreManager.ResetLPIP();
+  }
+
+  public void ReCalibrateLPIP()
+  {
+      _lpipCoreManager.ReCalibrateLPIP();
   }
 
   public void SetWebCamTexture(WebCamTexture webCamTexture)
@@ -76,12 +75,12 @@ public class LPIPCoreController : MonoBehaviour
       {
           LPIPCalibrationUIController.Instance.HideCameraFeed();
       }
-      else if (Input.GetKeyDown(KeyCode.F5))
+      /*else if (Input.GetKeyDown(KeyCode.F5))
       {
-          RecalibrateLPIP();
+          ReCalibrateLPIP();
       }else if (Input.GetKeyDown(KeyCode.S))
       {
-          ActivateLPIP();
+          InitializeLPIP();
       }else if (Input.GetKeyDown(KeyCode.C))
       {
           SetProjectorDisplayId(0);
@@ -100,6 +99,6 @@ public class LPIPCoreController : MonoBehaviour
               webCamTexture.Play();
           }
           SetWebCamTexture(webCamTexture);
-      }
+      }*/
   }
 }
