@@ -62,7 +62,7 @@ public class LPIPCoreManager : MonoBehaviour
         }
         if (_currentState == StandbyState)
         {
-            return state == InitializationState;
+            return state == InitializationState || state == StandbyState;
         }
 
         return false;

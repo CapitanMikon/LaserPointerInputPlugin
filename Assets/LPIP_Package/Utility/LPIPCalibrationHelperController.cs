@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,13 +12,19 @@ public class LPIPCalibrationHelperController : MonoBehaviour
 
     private void OnEnable()
     {
-        exitButton.interactable = false;
+        exitButton.interactable = true;
+        calibrateButton.interactable = false;
         LPIPCoreManager.OnCalibrationFinishedEvent += CalibrationFinishedHandler;
     }
     
     private void OnDisable()
     {
         LPIPCoreManager.OnCalibrationFinishedEvent -= CalibrationFinishedHandler;
+    }
+
+    public void EnableCalibButton()
+    {
+        calibrateButton.interactable = true;
     }
 
     public void OnEditConfigurationClick()
@@ -47,7 +50,6 @@ public class LPIPCalibrationHelperController : MonoBehaviour
         {
             editConfigurationButton.interactable = true;
             calibrateButton.interactable = true;
-            exitButton.interactable = true;
         }
     }
 }

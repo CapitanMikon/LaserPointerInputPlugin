@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class LPIPCalibrationUIController : MonoBehaviour
 {
     [SerializeField] private LPIPConfigurationMenuController lpipConfigurationMenuController;
+    [SerializeField] private LPIPCalibrationHelperController lpipCalibrationHelperController;
     [SerializeField] private GameObject cameraFeed;
     [SerializeField] private RawImage cameraFeedImage;
     private WebCamTexture _webCamTexture;
@@ -26,6 +27,14 @@ public class LPIPCalibrationUIController : MonoBehaviour
     private void Start()
     {
         ShowUI();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            ShowUI();
+        }
     }
 
     private void OnEnable()
@@ -61,6 +70,7 @@ public class LPIPCalibrationUIController : MonoBehaviour
         LPIPCoreController.Instance.InitializeLPIP();
 
         //hide menu1
+        lpipCalibrationHelperController.EnableCalibButton();
         Menu1Content.SetActive(false);
         //show menu2
         Menu2Content.SetActive(true);
@@ -70,7 +80,10 @@ public class LPIPCalibrationUIController : MonoBehaviour
     public void ConfigurationSetupEnter()
     {
         LPIPCoreController.Instance.ResetLPIP();
-        _webCamTexture.Stop();
+        if (_webCamTexture != null)
+        {
+            _webCamTexture.Stop();
+        }
         Menu1Content.SetActive(true);
         Menu2Content.SetActive(false);
     }
@@ -84,8 +97,8 @@ public class LPIPCalibrationUIController : MonoBehaviour
     
     public void ShowUI()
     {
-        Menu1Content.SetActive(true);
-        Menu2Content.SetActive(false);
+        Menu1Content.SetActive(false);
+        Menu2Content.SetActive(true);
         DebugUIContent.SetActive(true);
     }
     private void HideCameraFeedEventHandler(LPIPManualCalibrationState.LPIPCalibrationResult result)
