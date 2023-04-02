@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
 
 public class LPIPRunningState : LPIPBaseState
 {
@@ -41,7 +38,7 @@ public class LPIPRunningState : LPIPBaseState
         Debug.Log("Entered state {LPIPRunningState}");
         _lpipCoreManager = lpipCoreManager;
 
-        webCamTexture = _lpipCoreManager.webCamTexture;
+        webCamTexture = _lpipCoreManager.WebCamTexture;
         _lpipCalibrationData = _lpipCoreManager.LpipCalibrationData;
         _cameraData = _lpipCoreManager.CameraData;
         _windowData = _lpipCoreManager.WindowData;
@@ -52,16 +49,6 @@ public class LPIPRunningState : LPIPBaseState
 
     public override void UpdateState()
     {
-        /*if (Input.GetKeyDown(KeyCode.F1))
-        {
-            LPIPCalibrationUIController.Instance.ShowCameraFeed();
-        }else if(Input.GetKeyDown(KeyCode.F2))
-        {
-            LPIPCalibrationUIController.Instance.HideCameraFeed();
-        }else if (Input.GetKeyDown(KeyCode.F5))
-        {
-            _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
-        }*/
         if (beginNoLaserProcedure)
         {
             if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)

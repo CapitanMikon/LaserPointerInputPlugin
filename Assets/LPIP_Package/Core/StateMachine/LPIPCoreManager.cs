@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class LPIPCoreManager : MonoBehaviour
 {
@@ -16,8 +15,8 @@ public class LPIPCoreManager : MonoBehaviour
     public LPIPCalibrationData LpipCalibrationData  { get;  set; }
     public CameraData CameraData  { get;  set; }
     public WindowData WindowData  { get;  set; }
-
-    [SerializeField] public RawImage webcamImageHolder;
+    public WebCamTexture WebCamTexture { get; set; }
+    public int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
 
     public static event Action OnCalibrationStartedEvent;
     public static event Action<LPIPManualCalibrationState.LPIPCalibrationResult> OnCalibrationFinishedEvent;
@@ -26,9 +25,6 @@ public class LPIPCoreManager : MonoBehaviour
     public static event Action<Vector2> OnLaserHitDownDetectedEvent;
     public static event Action<Vector2> OnLaserHitUpDetectedEvent;
 
-    public WebCamTexture webCamTexture;
-
-    public int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
 
     private void Awake()
     {
