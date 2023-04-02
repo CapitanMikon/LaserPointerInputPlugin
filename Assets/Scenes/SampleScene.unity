@@ -1501,7 +1501,7 @@ PrefabInstance:
       objectReference: {fileID: 1641993144}
     - target: {fileID: 7007035413491464332, guid: 161d5edc6900e7c4aa92b5ee6880357e, type: 3}
       propertyPath: PROJECTOR_DISPLAY_ID
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7007035413667044254, guid: 161d5edc6900e7c4aa92b5ee6880357e, type: 3}
       propertyPath: m_RootOrder

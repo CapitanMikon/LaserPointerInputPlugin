@@ -1,6 +1,6 @@
 using System;
-using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LPIPCoreManager : MonoBehaviour
 {
@@ -10,7 +10,7 @@ public class LPIPCoreManager : MonoBehaviour
     //public LPIPBaseState AutomaticCalibrationState {get; private set;}
     public LPIPBaseState RunningState { get; private set; }
     public LPIPBaseState StandbyState { get; private set; }
-    
+
     private LPIPBaseState _currentState;
 
     public LPIPCalibrationData LpipCalibrationData  { get;  set; }
@@ -39,22 +39,51 @@ public class LPIPCoreManager : MonoBehaviour
         StandbyState = new LPIPStandbyState();
     }
 
-    void Start()
+    private void Start()
     {
         _currentState = StandbyState;
         _currentState.EnterState(this);
     }
     
-    void Update()
+    private void Update()
     {
         _currentState.UpdateState();
     }
 
+    private bool TransitionToStateIsAllowed(LPIPBaseState state)
+    {
+        if (_currentState == InitializationState)
+        {
+            return state == ManualCalibrationState;// || state == AutomaticCalibrationState;
+        }
+        if (_currentState == ManualCalibrationState)// || state == AutomaticCalibrationState)
+        {
+            return state == InitializationState || state == ManualCalibrationState || state == RunningState;// || state == AutomaticCalibrationSate;
+        }
+        if (_currentState == RunningState)
+        {
+            return state == ManualCalibrationState || state == InitializationState;// || state == AutomaticCalibrationState;
+        }
+        if (_currentState == StandbyState)
+        {
+            return state == InitializationState;
+        }
+
+        return false;
+    }
+
     public void SwitchState(LPIPBaseState state)
     {
-        _currentState.ExitState();
-        _currentState = state;
-        _currentState.EnterState(this);
+        if (TransitionToStateIsAllowed(state))
+        {
+            _currentState.ExitState();
+            _currentState = state;
+            _currentState.EnterState(this);
+        }
+        else
+        {
+            Debug.LogError($"State transition from [{_currentState}] to [{state}] is not allowed!");
+        }
     }
 
     public void InvokeOnLaserHitDownDetectedEvent(Vector2 clickPosition)
@@ -71,27 +100,27 @@ public class LPIPCoreManager : MonoBehaviour
     
     public void InvokeCalibrationEndedEvent(LPIPManualCalibrationState.LPIPCalibrationResult result)
     {
-        Debug.LogWarning($"Fired event OnCalibrationFinishedEvent = result");
+        Debug.LogWarning($"Fired event OnCalibrationFinishedEvent = {result}");
         OnCalibrationFinishedEvent?.Invoke(result);
     }
     
     public void InvokeCalibrationStartedEvent()
     {
-        Debug.LogWarning($"Fired event OnCalibrationStartedEvent");
+        Debug.LogWarning("Fired event OnCalibrationStartedEvent");
 
         OnCalibrationStartedEvent?.Invoke();
     }
     
     public void InvokeDetectionStartedEvent()
     {
-        Debug.LogWarning($"Fired event OnDetectionStartedEvent");
+        Debug.LogWarning("Fired event OnDetectionStartedEvent");
 
         OnDetectionStartedEvent?.Invoke();
     }
 
     public void InvokeDetectionStoppedEvent()
     {
-        Debug.LogWarning($"Fired event OnDetectionStoppedEvent");
+        Debug.LogWarning("Fired event OnDetectionStoppedEvent");
         
         OnDetectionStoppedEvent?.Invoke();
     }
@@ -99,27 +128,12 @@ public class LPIPCoreManager : MonoBehaviour
     public void StartLPIP()
     {
         Debug.LogWarning("LPIP Start requested!");
-        if (_currentState != StandbyState)
-        {
-            Debug.LogWarning($"State transition from {_currentState} -> {InitializationState} is not allowed!");
-            return;
-        }
         SwitchState(InitializationState);
     }
     
     public void RecalibrateLPIP()
     {
         Debug.LogWarning("LPIP Recalibration requested!");
-        if (_currentState != RunningState)
-        {
-            Debug.LogWarning($"State transition from {_currentState} -> {RunningState} is not allowed!");
-            return;
-        }
-
-        if (_currentState == ManualCalibrationState)
-        {
-            InvokeCalibrationEndedEvent(LPIPManualCalibrationState.LPIPCalibrationResult.Restart);
-        }
         SwitchState(ManualCalibrationState);
     }
 }

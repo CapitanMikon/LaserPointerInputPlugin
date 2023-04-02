@@ -77,19 +77,15 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
                 clickCounter++;
             }
-            /*else if (Input.GetKeyDown(KeyCode.R))
-            {
-                RestartCalibration();
-            }
-            else if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                //CancelCalibration();
-            }*/
         }
     }
     
     public override void ExitState()
     {
+        if (isCalibrating)
+        {
+            _lpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Restart);
+        }
         Debug.Log("Leaving state {LPIPManualCalibrationState}");
     }
 
