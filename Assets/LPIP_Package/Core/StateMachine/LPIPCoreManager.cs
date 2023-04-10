@@ -55,7 +55,7 @@ public class LPIPCoreManager : MonoBehaviour
         }
         if (_currentState == InitializationState)
         {
-            return state == ManualCalibrationState || state == InitializationState;// || state == AutomaticCalibrationState;
+            return state == ManualCalibrationState || state == InitializationState || state == StandbyState;// || state == AutomaticCalibrationState;
         }
         if (_currentState == ManualCalibrationState)// || state == AutomaticCalibrationState)
         {

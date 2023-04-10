@@ -23,8 +23,9 @@ public class LPIPConfigurationMenuController : MonoBehaviour
 
     private void Update()
     {
-        if (_webCamDevices != WebCamTexture.devices || _displayDevices != Display.displays)
+        if (_webCamDevices.Length != WebCamTexture.devices.Length || _displayDevices.Length != Display.displays.Length)
         {
+            Debug.Log("refreshing dropdown");
             RefreshDropdownButtons();
         }
     }
