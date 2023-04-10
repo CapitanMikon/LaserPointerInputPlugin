@@ -55,6 +55,7 @@ public class LPIPMouseEmulation : MonoBehaviour
             string s = "";
             foreach (var r in _guiRaycastResults)
             {
+                //try button
                 r.gameObject.TryGetComponent(out Button button);
                 if (button != null)
                 {
@@ -66,6 +67,19 @@ public class LPIPMouseEmulation : MonoBehaviour
                         break;
                     }
                 }
+                //try toggle
+                r.gameObject.TryGetComponent(out Toggle toggle);
+                if (toggle != null)
+                {
+                    if (toggle.interactable)
+                    {
+                        toggle.isOn = !toggle.isOn;
+                        s+= $"{r.gameObject.name}";
+                        _isUIDetected = true;
+                        break;
+                    }
+                }
+                
             }
 
             if (!s.Equals(""))
