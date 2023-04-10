@@ -42,22 +42,6 @@ public class LPIPUtilityController : MonoBehaviour
         CloseUtilityUI();
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            OpenUtilityUI();
-        }
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            SetActiveCameraFeed(true);
-        }
-        else if(Input.GetKeyDown(KeyCode.F2))
-        {
-            SetActiveCameraFeed(false);
-        }
-    }
-
     private void OnEnable()
     {
         LPIPCoreManager.OnCalibrationStartedEvent += ShowCameraFeedEventHandler;
