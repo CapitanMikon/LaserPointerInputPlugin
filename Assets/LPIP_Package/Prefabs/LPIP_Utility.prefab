@@ -3395,7 +3395,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d70af7048f89f7b44bf7cc3f73241bbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lpipUtilityController: {fileID: 1699458574325494110}
+  lpipUtilityController: {fileID: 1699458574325494110}
 --- !u!1 &5909375575076567950
 GameObject:
   m_ObjectHideFlags: 0
