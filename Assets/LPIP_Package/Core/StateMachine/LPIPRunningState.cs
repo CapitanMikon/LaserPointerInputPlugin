@@ -17,7 +17,7 @@ public class LPIPRunningState : LPIPBaseState
     private const double R_VALUE = 0.299;
     private const double G_VALUE = 0.587;
     private const double B_VALUE = 0.114;
-    private const double PIXEL_LUMINANCE_THRESHOLD = 100;
+    private const double PIXEL_LUMINANCE_THRESHOLD = 160;
     
     private BorderPoint top;
     private BorderPoint bottom;
@@ -76,9 +76,12 @@ public class LPIPRunningState : LPIPBaseState
                 {
                     if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
                     {
-                        //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
-                        UpdateBorders(currentX, currentY, pixelLuminance);
-                        updateMarker = true;
+                        if(webCamPixels[i].r > 120 && webCamPixels[i].g < 189  && webCamPixels[i].b < 170)//if (hVal <= 15 && sVal >= 60 && vVal > 40)
+                        {
+                            //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
+                            UpdateBorders(currentX, currentY, pixelLuminance);
+                            updateMarker = true;
+                        }
                     }
                 }
 

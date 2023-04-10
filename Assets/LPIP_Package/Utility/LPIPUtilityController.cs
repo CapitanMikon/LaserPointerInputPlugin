@@ -78,6 +78,7 @@ public class LPIPUtilityController : MonoBehaviour
 
     public void ConfigurationSetupSave()
     {
+        DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Everything);
         LPIPCoreController.Instance.ResetLPIP();
         if (_webCamTexture != null)
         {
@@ -110,7 +111,6 @@ public class LPIPUtilityController : MonoBehaviour
 
     public void ConfigurationSetupEnter()
     {
-        DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Everything);
         ConfigurationMenuContent.SetActive(true);
         CalibrationMenuContent.SetActive(false);
     }
