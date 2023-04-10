@@ -76,7 +76,12 @@ public class LPIPConfigurationMenuController : MonoBehaviour
 
     public void OnSaveConfigurationClick()
     {
-        lpipUtilityController.ConfigurationSetupLeave();
+        lpipUtilityController.ConfigurationSetupSave();
+    }
+    
+    public void OnCancelConfigurationClick()
+    {
+        lpipUtilityController.ConfigurationSetupCancel();
     }
 
     public WebCamDevice GetWebCamDeviceFromDropdown()

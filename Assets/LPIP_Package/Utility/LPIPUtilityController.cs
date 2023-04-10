@@ -73,8 +73,14 @@ public class LPIPUtilityController : MonoBehaviour
         LPIPCoreController.Instance.ReCalibrateLPIP();
     }
 
-    public void ConfigurationSetupLeave()
+    public void ConfigurationSetupSave()
     {
+        LPIPCoreController.Instance.ResetLPIP();
+        if (_webCamTexture != null)
+        {
+            _webCamTexture.Stop();
+        }
+        
         //get values from dropdown menu and init plugin core
         var projectorId = lpipConfigurationMenuController.GetProjectorIdFromDropdown();
         var cameraDevice = lpipConfigurationMenuController.GetWebCamDeviceFromDropdown();
@@ -91,16 +97,17 @@ public class LPIPUtilityController : MonoBehaviour
         lpipCalibrationMenuController.EnableCalibButton();
         ConfigurationMenuContent.SetActive(false);
         CalibrationMenuContent.SetActive(true);
-        
+    }
+
+    public void ConfigurationSetupCancel()
+    {
+        ConfigurationMenuContent.SetActive(false);
+        CalibrationMenuContent.SetActive(true);
     }
 
     public void ConfigurationSetupEnter()
     {
-        LPIPCoreController.Instance.ResetLPIP();
-        if (_webCamTexture != null)
-        {
-            _webCamTexture.Stop();
-        }
+        DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Everything);
         ConfigurationMenuContent.SetActive(true);
         CalibrationMenuContent.SetActive(false);
     }

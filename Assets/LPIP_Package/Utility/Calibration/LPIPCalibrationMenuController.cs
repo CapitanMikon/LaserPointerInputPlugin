@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,13 @@ public class LPIPCalibrationMenuController : MonoBehaviour
 
     [SerializeField] private Toggle markerToggle;
     [SerializeField] private Toggle debugTextToggle;
+
+
+    private void Start()
+    {
+        markerToggle.isOn = false;
+        debugTextToggle.isOn = false;
+    }
 
     private void OnEnable()
     {
