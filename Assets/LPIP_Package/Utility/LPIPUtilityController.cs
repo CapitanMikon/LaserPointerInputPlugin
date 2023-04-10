@@ -24,14 +24,17 @@ public class LPIPUtilityController : MonoBehaviour
     [SerializeField] private RawImage cameraFeedImage;
     private WebCamTexture _webCamTexture;
     
-    private static LPIPUtilityController Instance;
+    //private static LPIPUtilityController Instance;
+
+    public static event Action OnUtilityMenuEnabled;
+    public static event Action OnUtilityMenuDisabled;
 
     private void Awake()
     {
-        if (Instance == null)
+        /*if (Instance == null)
         {
             Instance = this;
-        }
+        }*/
     }
 
     private void Start()
@@ -116,12 +119,14 @@ public class LPIPUtilityController : MonoBehaviour
     {
         ConfigurationMenuContent.SetActive(false);
         CalibrationMenuContent.SetActive(false);
+        OnUtilityMenuDisabled?.Invoke();
     }
     
     public void OpenUtilityUI()
     {
         ConfigurationMenuContent.SetActive(false);
         CalibrationMenuContent.SetActive(true);
+        OnUtilityMenuEnabled?.Invoke();
     }
 
     public void EnableMarker()
