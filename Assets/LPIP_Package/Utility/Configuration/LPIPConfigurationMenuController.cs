@@ -11,6 +11,7 @@ public class LPIPConfigurationMenuController : MonoBehaviour
     [SerializeField] private LPIPUtilityController lpipUtilityController;
 
     private WebCamDevice[] _webCamDevices;
+    private Display[] _displayDevices;
 
     private void Start()
     {
@@ -20,19 +21,28 @@ public class LPIPConfigurationMenuController : MonoBehaviour
         projectorIdDropdown.onValueChanged.AddListener(ProjectorIdDropdownItemSelected);
     }
 
+    private void Update()
+    {
+        if (_webCamDevices != WebCamTexture.devices || _displayDevices != Display.displays)
+        {
+            RefreshDropdownButtons();
+        }
+    }
+
     private void RefreshDropdownButtons()
     {
         cameraDropdown.ClearOptions();
         projectorIdDropdown.ClearOptions();
         
         _webCamDevices = WebCamTexture.devices;
+        _displayDevices = Display.displays;
         for (int i = 0; i < _webCamDevices.Length; i++)
         {
             LPIPDropdownData lpipDropdownData = new LPIPDropdownData() {name = _webCamDevices[i].name, id = i };
             cameraDropdown.options.Add(new TMP_DropdownExtended() {text = lpipDropdownData.name, dropdownCustpmData = lpipDropdownData});
         }
 
-        for (int i = 0; i < Display.displays.Length; i++)
+        for (int i = 0; i < _displayDevices.Length; i++)
         {
             if (i == 0)
             {
