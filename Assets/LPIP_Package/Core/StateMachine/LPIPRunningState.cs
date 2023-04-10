@@ -233,8 +233,8 @@ public class LPIPRunningState : LPIPBaseState
                 _lpipCalibrationData.ideal[3]
             };
             var k = Triangle(pts,pos);
-            //DebugText.Instance.ResetText(DebugText.DebugTextGroup.Side);
-            //DebugText.Instance.AddText("Top",DebugText.DebugTextGroup.Side);
+            //DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Side);
+            //DebugTextController.Instance.AppendText("Top",DebugTextController.DebugTextGroup.Side);
             return Dot(pts2,k);
         }
         else
@@ -249,8 +249,8 @@ public class LPIPRunningState : LPIPBaseState
                 _lpipCalibrationData.ideal[2],
                 _lpipCalibrationData.ideal[1]
             };
-            //DebugText.Instance.ResetText(DebugText.DebugTextGroup.Side);
-            //DebugText.Instance.AddText("Bot",DebugText.DebugTextGroup.Side);
+            //DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Side);
+            //DebugTextController.Instance.AppendText("Bot",DebugTextController.DebugTextGroup.Side);
             var k = Triangle(pts,pos);
             return Dot(pts2,k);
         }

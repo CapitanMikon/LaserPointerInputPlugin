@@ -1,20 +1,30 @@
 using System;
 using UnityEngine;
+using UnityEngine.Timeline;
 using UnityEngine.UI;
 
-public class LPIPCalibrationUIController : MonoBehaviour
+public class LPIPUtilityController : MonoBehaviour
 {
+    [Header("Configuration Menu")]
     [SerializeField] private LPIPConfigurationMenuController lpipConfigurationMenuController;
-    [SerializeField] private LPIPCalibrationHelperController lpipCalibrationHelperController;
+    [SerializeField] private GameObject ConfigurationMenuContent;
+    
+    [Header("Calibration Menu")]
+    [SerializeField] private LPIPCalibrationMenuController lpipCalibrationMenuController;
+    [SerializeField] private GameObject CalibrationMenuContent;
+    
+    [Header("Debug Menu")]
+    [SerializeField] private GameObject DebugTextContent;
+    
+    [Header("Marker")]
+    [SerializeField] private GameObject MarkerContent;
+    
+    [Header("Camera stuff")]
     [SerializeField] private GameObject cameraFeed;
     [SerializeField] private RawImage cameraFeedImage;
     private WebCamTexture _webCamTexture;
-
-    [SerializeField] private GameObject Menu1Content;
-    [SerializeField] private GameObject Menu2Content;
-    [SerializeField] private GameObject DebugUIContent;
-
-    public static LPIPCalibrationUIController Instance;
+    
+    private static LPIPUtilityController Instance;
 
     private void Awake()
     {
@@ -26,14 +36,22 @@ public class LPIPCalibrationUIController : MonoBehaviour
 
     private void Start()
     {
-        ShowUI();
+        CloseUtilityUI();
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.C))
         {
-            ShowUI();
+            OpenUtilityUI();
+        }
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            SetActiveCameraFeed(true);
+        }
+        else if(Input.GetKeyDown(KeyCode.F2))
+        {
+            SetActiveCameraFeed(false);
         }
     }
 
@@ -48,6 +66,7 @@ public class LPIPCalibrationUIController : MonoBehaviour
         LPIPCoreManager.OnCalibrationStartedEvent -= ShowCameraFeedEventHandler;
         LPIPCoreManager.OnCalibrationFinishedEvent -= HideCameraFeedEventHandler;
     }
+    
 
     public void CalibratePlugin()
     {
@@ -68,12 +87,10 @@ public class LPIPCalibrationUIController : MonoBehaviour
         LPIPCoreController.Instance.SetWebCamTexture(_webCamTexture);
         
         LPIPCoreController.Instance.InitializeLPIP();
-
-        //hide menu1
-        lpipCalibrationHelperController.EnableCalibButton();
-        Menu1Content.SetActive(false);
-        //show menu2
-        Menu2Content.SetActive(true);
+        
+        lpipCalibrationMenuController.EnableCalibButton();
+        ConfigurationMenuContent.SetActive(false);
+        CalibrationMenuContent.SetActive(true);
         
     }
 
@@ -84,44 +101,59 @@ public class LPIPCalibrationUIController : MonoBehaviour
         {
             _webCamTexture.Stop();
         }
-        Menu1Content.SetActive(true);
-        Menu2Content.SetActive(false);
+        ConfigurationMenuContent.SetActive(true);
+        CalibrationMenuContent.SetActive(false);
     }
 
-    public void HideUI()
+    public void CloseUtilityUI()
     {
-        Menu1Content.SetActive(false);
-        Menu2Content.SetActive(false);
-        DebugUIContent.SetActive(false);
+        ConfigurationMenuContent.SetActive(false);
+        CalibrationMenuContent.SetActive(false);
     }
     
-    public void ShowUI()
+    public void OpenUtilityUI()
     {
-        Menu1Content.SetActive(false);
-        Menu2Content.SetActive(true);
-        DebugUIContent.SetActive(true);
+        ConfigurationMenuContent.SetActive(false);
+        CalibrationMenuContent.SetActive(true);
+    }
+
+    public void EnableMarker()
+    {
+        Debug.Log("Marker enabled");
+        MarkerContent.SetActive(true);
+    }
+
+    public void DisableMarker()
+    {
+        Debug.Log("Marker disabled");
+        MarkerContent.SetActive(false);
+    }
+
+    public void EnableDebugText()
+    {
+        Debug.Log("DebugText enabled");
+        DebugTextContent.SetActive(true);
+    }
+
+    public void DisableDebugText()
+    {
+        Debug.Log("DebugText disabled");
+        DebugTextContent.SetActive(false);
     }
     private void HideCameraFeedEventHandler(LPIPManualCalibrationState.LPIPCalibrationResult result)
     {
         Debug.Log("HideCameraFeedEvent received!");
-        HideCameraFeed();
+        SetActiveCameraFeed(false);
     }
     
     private void ShowCameraFeedEventHandler()
     {
         Debug.Log("ShowCameraFeedEvent received!");
-        ShowCameraFeed();
+        SetActiveCameraFeed(true);
     }
 
-    public void ShowCameraFeed()
+    public void SetActiveCameraFeed(bool isActive)
     {
-        Debug.Log("CameraFeed ON");
-        cameraFeed.SetActive(true);
-    }
-    
-    public void HideCameraFeed()
-    {
-        Debug.Log("CameraFeed OFF");
-        cameraFeed.SetActive(false);
+        cameraFeed.SetActive(isActive);
     }
 }

@@ -1,14 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LPIPCalibrationHelperController : MonoBehaviour
+public class LPIPCalibrationMenuController : MonoBehaviour
 {
     
-    [SerializeField] private LPIPCalibrationUIController lpipCalibrationUIController;
+    [SerializeField] private LPIPUtilityController lpipUtilityController;
 
     [SerializeField] private Button editConfigurationButton;
     [SerializeField] private Button calibrateButton;
     [SerializeField] private Button exitButton;
+
+    [SerializeField] private Toggle markerToggle;
+    [SerializeField] private Toggle debugTextToggle;
 
     private void OnEnable()
     {
@@ -29,19 +32,43 @@ public class LPIPCalibrationHelperController : MonoBehaviour
 
     public void OnEditConfigurationClick()
     {
-        lpipCalibrationUIController.ConfigurationSetupEnter();
+        lpipUtilityController.ConfigurationSetupEnter();
     }
     
     public void OnCalibrateClick()
     {
         editConfigurationButton.interactable = false;
         calibrateButton.interactable = false;
-        lpipCalibrationUIController.CalibratePlugin();
+        lpipUtilityController.CalibratePlugin();
     }
 
     public void OnExitButtonClick()
     {
-        lpipCalibrationUIController.HideUI();
+        lpipUtilityController.CloseUtilityUI();
+    }
+
+    public void OnValueChangedMarkerToggle(bool newValue)
+    {
+        if (newValue)
+        {
+            lpipUtilityController.EnableMarker();
+        }
+        else
+        {
+            lpipUtilityController.DisableMarker();
+        }
+    }
+    
+    public void OnValueChangedDebugTextToggle(bool newValue)
+    {
+        if (newValue)
+        {
+            lpipUtilityController.EnableDebugText();
+        }
+        else
+        {
+            lpipUtilityController.DisableDebugText();
+        }
     }
 
     private void CalibrationFinishedHandler(LPIPManualCalibrationState.LPIPCalibrationResult result)

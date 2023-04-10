@@ -16,7 +16,7 @@ public class LPIPCoreManager : MonoBehaviour
     public CameraData CameraData  { get;  set; }
     public WindowData WindowData  { get;  set; }
     public WebCamTexture WebCamTexture { get; set; }
-    public int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
+    [HideInInspector] public int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
 
     public static event Action OnCalibrationStartedEvent;
     public static event Action<LPIPManualCalibrationState.LPIPCalibrationResult> OnCalibrationFinishedEvent;
@@ -37,7 +37,8 @@ public class LPIPCoreManager : MonoBehaviour
 
     private void Start()
     {
-        _currentState = StandbyState;
+        SwitchState(StandbyState);
+        //_currentState = StandbyState;
         _currentState.EnterState(this);
     }
     
@@ -48,6 +49,10 @@ public class LPIPCoreManager : MonoBehaviour
 
     private bool TransitionToStateIsAllowed(LPIPBaseState state)
     {
+        if (_currentState == null)
+        {
+            return state == StandbyState;
+        }
         if (_currentState == InitializationState)
         {
             return state == ManualCalibrationState || state == InitializationState;// || state == AutomaticCalibrationState;
@@ -72,9 +77,10 @@ public class LPIPCoreManager : MonoBehaviour
     {
         if (TransitionToStateIsAllowed(state))
         {
-            _currentState.ExitState();
+            Debug.Log($"Changing state from <color=#c1a730>{_currentState}</color> to <color=#36ba1f>{state}</color>");
+            _currentState?.ExitState();
             _currentState = state;
-            _currentState.EnterState(this);
+            _currentState?.EnterState(this);
         }
         else
         {

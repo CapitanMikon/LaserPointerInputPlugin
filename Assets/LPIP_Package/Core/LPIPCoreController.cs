@@ -67,14 +67,6 @@ public class LPIPCoreController : MonoBehaviour
 
   private void Update()
   {
-      if (Input.GetKeyDown(KeyCode.F1))
-      {
-          LPIPCalibrationUIController.Instance.ShowCameraFeed();
-      }
-      else if(Input.GetKeyDown(KeyCode.F2))
-      {
-          LPIPCalibrationUIController.Instance.HideCameraFeed();
-      }
       /*else if (Input.GetKeyDown(KeyCode.F5))
       {
           ReCalibrateLPIP();

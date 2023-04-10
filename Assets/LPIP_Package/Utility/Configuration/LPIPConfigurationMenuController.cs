@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -7,11 +8,19 @@ public class LPIPConfigurationMenuController : MonoBehaviour
     [SerializeField] private TMP_Dropdown cameraDropdown;
     [SerializeField] private TMP_Dropdown projectorIdDropdown;
 
-    [SerializeField] private LPIPCalibrationUIController lpipCalibrationUIController;
+    [SerializeField] private LPIPUtilityController lpipUtilityController;
 
     private WebCamDevice[] _webCamDevices;
-    
-    void Start()
+
+    private void Start()
+    {
+        RefreshDropdownButtons();
+        
+        cameraDropdown.onValueChanged.AddListener(CameraDropdownItemSelected);
+        projectorIdDropdown.onValueChanged.AddListener(ProjectorIdDropdownItemSelected);
+    }
+
+    private void RefreshDropdownButtons()
     {
         cameraDropdown.ClearOptions();
         projectorIdDropdown.ClearOptions();
@@ -40,9 +49,6 @@ public class LPIPConfigurationMenuController : MonoBehaviour
         
         cameraDropdown.RefreshShownValue();
         projectorIdDropdown.RefreshShownValue();
-        
-        cameraDropdown.onValueChanged.AddListener(CameraDropdownItemSelected);
-        projectorIdDropdown.onValueChanged.AddListener(ProjectorIdDropdownItemSelected);
     }
 
     private void CameraDropdownItemSelected(int id)
@@ -59,7 +65,7 @@ public class LPIPConfigurationMenuController : MonoBehaviour
 
     public void OnSaveConfigurationClick()
     {
-        lpipCalibrationUIController.ConfigurationSetupLeave();
+        lpipUtilityController.ConfigurationSetupLeave();
     }
 
     public WebCamDevice GetWebCamDeviceFromDropdown()
@@ -71,6 +77,11 @@ public class LPIPConfigurationMenuController : MonoBehaviour
     public int GetProjectorIdFromDropdown()
     {
         return projectorIdDropdown.value;
+    }
+
+    public void OnRefreshDropdownButtonClick()
+    {
+        RefreshDropdownButtons();
     }
 }
 

@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class DebugText : MonoBehaviour
+public class DebugTextController : MonoBehaviour
 {
-    public static DebugText instance;
+    public static DebugTextController Instance;
 
     [SerializeField] private TextMeshProUGUI textResolution;
     [SerializeField] private TextMeshProUGUI textMouseClick;
     
     void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
     }
 
@@ -41,7 +41,7 @@ public class DebugText : MonoBehaviour
         }
     }
 
-    public void AddText(string message, DebugTextGroup type)
+    public void AppendText(string message, DebugTextGroup type)
     {
         switch (type)
         {

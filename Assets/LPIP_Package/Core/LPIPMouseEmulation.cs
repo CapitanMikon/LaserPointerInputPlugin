@@ -92,8 +92,8 @@ public class LPIPMouseEmulation : MonoBehaviour
                     laserInteractable.LPIPOnLaserHit();
                 }
             }
-            DebugText.instance.ResetText(DebugText.DebugTextGroup.MouseClickPos);
-            DebugText.instance.AddText($"Mouse click emulated at: {clickPosition}", DebugText.DebugTextGroup.MouseClickPos);
+            DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.MouseClickPos);
+            DebugTextController.Instance.AppendText($"Mouse click emulated at: {clickPosition}", DebugTextController.DebugTextGroup.MouseClickPos);
         }
     }
 

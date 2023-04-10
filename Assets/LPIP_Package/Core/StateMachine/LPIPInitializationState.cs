@@ -47,8 +47,9 @@ public class LPIPInitializationState : LPIPBaseState
         
         
         Debug.LogWarning($"Window res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}");
-        DebugText.instance.AddText($"\nWindow res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}", DebugText.DebugTextGroup.Resolution);
-        DebugText.instance.AddText($"\nScreen res: {Screen.currentResolution}", DebugText.DebugTextGroup.Resolution);
+        DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Resolution);
+        DebugTextController.Instance.AppendText($"\nWindow res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}", DebugTextController.DebugTextGroup.Resolution);
+        DebugTextController.Instance.AppendText($"\nScreen res: {Screen.currentResolution}", DebugTextController.DebugTextGroup.Resolution);
 
         GAME_WINDOW_FACTORX =  GAME_WINDOW_WIDTH / Convert.ToSingle(CAMERA_WIDTH);
         GAME_WINDOW_FACTORY =  GAME_WINDOW_HEIGHT / Convert.ToSingle(CAMERA_HEIGHT);
