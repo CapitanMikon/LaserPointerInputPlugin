@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.UI;
 
 public class LPIPRunningState : LPIPBaseState
 {
@@ -32,7 +34,12 @@ public class LPIPRunningState : LPIPBaseState
     private WindowData _windowData;
 
     private Vector3 _lastPosition;
-    
+
+    private ComputeShader _computeShader;
+    private int kernelHandle;
+    private RenderTexture outputTex;
+    private Texture2D tex;
+
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
         Debug.Log("Entered state {LPIPRunningState}");
@@ -42,13 +49,30 @@ public class LPIPRunningState : LPIPBaseState
         _lpipCalibrationData = _lpipCoreManager.LpipCalibrationData;
         _cameraData = _lpipCoreManager.CameraData;
         _windowData = _lpipCoreManager.WindowData;
+
+        outputTex = new RenderTexture(1920, 1080, 0);
+        outputTex.enableRandomWrite = true;
+        outputTex.Create();
         
+        tex = new Texture2D(outputTex.width, outputTex.height);
+        
+        _computeShader = _lpipCoreManager.computeShader;
+        kernelHandle = _computeShader.FindKernel("CSMain");
+        _computeShader.SetTexture(kernelHandle ,"inputTexture", webCamTexture);
+        _computeShader.SetTexture(kernelHandle ,"outputTexture", outputTex);
+
+        var component = _lpipCoreManager.copy.GetComponent<RawImage>();
+        component.texture = outputTex;
+        
+
         ResetBorders();
         StartLaserDetection();
     }
 
     public override void UpdateState()
     {
+        _computeShader.Dispatch(kernelHandle, Mathf.CeilToInt(outputTex.width / 8f), Mathf.CeilToInt(outputTex.height / 8f),1); 
+        
         if (beginNoLaserProcedure)
         {
             if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
@@ -64,24 +88,22 @@ public class LPIPRunningState : LPIPBaseState
         if (laserDetectionIsEnabled)
         {
             bool updateMarker = false;
-            webCamPixels = webCamTexture.GetPixels32();
+            GetRTPixels();
+            webCamPixels = tex.GetPixels32();
 
             for (int i = 0; i < webCamPixels.Length; i++)
             {
-                var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
+                //var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
                 int currentX = i % _cameraData.CAMERA_WIDTH;
                 int currentY = i / _cameraData.CAMERA_WIDTH;
                 if (true)//(currentX >= _lpipCalibrationData.restrictionTopLeft.x && currentX <= _lpipCalibrationData.restrictionBottomRight.x
                    //                                                   && currentY >= _lpipCalibrationData.restrictionBottomRight.y && currentY <= _lpipCalibrationData.restrictionTopLeft.y)//is within restrictions
                 {
-                    if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
+                    if(webCamPixels[i].r > 120 && webCamPixels[i].g < 189  && webCamPixels[i].b < 170)
                     {
-                        if(webCamPixels[i].r > 120 && webCamPixels[i].g < 189  && webCamPixels[i].b < 170)//if (hVal <= 15 && sVal >= 60 && vVal > 40)
-                        {
-                            //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
-                            UpdateBorders(currentX, currentY, pixelLuminance);
+                        //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
+                            UpdateBorders(currentX, currentY);
                             updateMarker = true;
-                        }
                     }
                 }
 
@@ -104,9 +126,17 @@ public class LPIPRunningState : LPIPBaseState
         }
         
     }
-    
+
+    private void OnDestroy()
+    {
+        outputTex.Release();
+    }
+
     public override void ExitState()
     {
+        var component = _lpipCoreManager.copy.GetComponent<RawImage>();
+        component.material.mainTexture = null;
+        outputTex.Release();
         Debug.Log("Leaving state {LPIPRunningState}");
     }
     
@@ -124,34 +154,30 @@ public class LPIPRunningState : LPIPBaseState
         Debug.Log("Stopped laser detection."); 
     }
     
-    private void UpdateBorders(int x, int y, double luminance)
+    private void UpdateBorders(int x, int y)
     {
         //top
-        if (top.luminance< luminance && y > top.value)
+        if (y > top.value)
         {
             top.value = y;
-            top.luminance = luminance;
         }
         
         //bottom
-        if (bottom.luminance < luminance && y < bottom.value)
+        if (y < bottom.value)
         {
             bottom.value = y;
-            bottom.luminance = luminance;
         }
         
         //left
-        if (left.luminance < luminance && x < left.value)
+        if (x < left.value)
         {
             left.value = x;
-            left.luminance = luminance;
         }
         
         //right
-        if (right.luminance < luminance && x > right.value)
+        if (x > right.value)
         {
             right.value = x;
-            right.luminance = luminance;
         }
     }
 
@@ -257,5 +283,21 @@ public class LPIPRunningState : LPIPBaseState
             var k = Triangle(pts,pos);
             return Dot(pts2,k);
         }
+    }
+    
+    private void GetRTPixels()
+    {
+        // Remember currently active render texture
+        RenderTexture currentActiveRT = RenderTexture.active;
+
+        // Set the supplied RenderTexture as the active one
+        RenderTexture.active = outputTex;
+
+        // Create a new Texture2D and read the RenderTexture image into it
+        tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
+        tex.Apply();
+
+        // Restore previously active render texture
+        RenderTexture.active = currentActiveRT;
     }
 }

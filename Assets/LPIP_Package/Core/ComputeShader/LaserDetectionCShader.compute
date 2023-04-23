@@ -1,0 +1,34 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+float R_VALUE = 0.299;
+float G_VALUE = 0.587;
+float B_VALUE = 0.114;
+float PIXEL_LUMINANCE_THRESHOLD = 100;
+
+struct Border
+{
+    int top;
+    int bot;
+    int left;
+    int right;
+};
+
+Texture2D<float4> inputTexture;
+
+RWTexture2D<float4> outputTexture;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float4 pixel = inputTexture.Load(int3(id.xy, 0));
+    //outputTexture[id.xy] = pixel;
+    //float pixelLuminance = R_VALUE * (pixel.r *255)+ G_VALUE * (pixel.g *255)+ B_VALUE * (pixel.b*255);
+    if(pixel.r > 0.47 && pixel.g < 0.74 && pixel.b < 0.6667)
+    {
+        outputTexture[id.xy] = float4(1,0,0,1);
+    }else
+    {
+        outputTexture[id.xy] = float4(0,0,0,1);
+    }
+}
