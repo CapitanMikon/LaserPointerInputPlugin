@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Timeline;
 using UnityEngine.UI;
 
 public class LPIPUtilityController : MonoBehaviour
@@ -28,14 +27,6 @@ public class LPIPUtilityController : MonoBehaviour
 
     public static event Action OnUtilityMenuEnabled;
     public static event Action OnUtilityMenuDisabled;
-
-    private void Awake()
-    {
-        /*if (Instance == null)
-        {
-            Instance = this;
-        }*/
-    }
 
     private void Start()
     {
@@ -95,6 +86,7 @@ public class LPIPUtilityController : MonoBehaviour
 
     public void ConfigurationSetupEnter()
     {
+        cameraFeedImage.texture = _webCamTexture; // replace old texture with camera texture so user can see what camera see, since it is overwritten by Core
         ConfigurationMenuContent.SetActive(true);
         CalibrationMenuContent.SetActive(false);
     }

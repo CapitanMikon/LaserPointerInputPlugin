@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class LPIPBaseState : MonoBehaviour
+public abstract class LPIPBaseState
 {
     public abstract void EnterState(LPIPCoreManager lpipCoreManager);
     public abstract void UpdateState();
