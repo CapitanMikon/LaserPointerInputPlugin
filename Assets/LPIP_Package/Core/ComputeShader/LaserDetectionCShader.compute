@@ -11,11 +11,14 @@ struct Bound {
     int minY;
     int maxX;
     int maxY;
+    int detected;
 };
 
 Texture2D<float4> inputTexture;
 RWTexture2D<float4> outputTexture;
+
 float2 dimensions;
+float3 maxRGBValues;
 
 RWStructuredBuffer<Bound> bounds;
 
@@ -25,7 +28,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 pixel = inputTexture.Load(int3(id.xy, 0));
     //outputTexture[id.xy] = pixel;
     //float pixelLuminance = R_VALUE * (pixel.r *255)+ G_VALUE * (pixel.g *255)+ B_VALUE * (pixel.b*255);
-    if(pixel.r > 0.47 && pixel.g < 0.74 && pixel.b < 0.6667)
+    if(pixel.r > maxRGBValues[0] && pixel.g < maxRGBValues[1] && pixel.b < maxRGBValues[2])
     {
         outputTexture[id.xy] = float4(1,0,0,1);
         if( id.x <  0 || id.x > dimensions[0] || id.y < 0 || id.y > dimensions[1])
@@ -33,6 +36,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
             
         }else
         {
+            bounds[0].detected = 1;
             InterlockedMin(bounds[0].minX, id.x);
             InterlockedMax(bounds[0].maxX, id.x);
             InterlockedMin(bounds[0].minY, id.y);

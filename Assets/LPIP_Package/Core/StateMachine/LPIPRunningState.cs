@@ -44,9 +44,13 @@ public class LPIPRunningState : LPIPBaseState
         
         _computeShader = _lpipCoreManager.computeShader;
         kernelHandle = _computeShader.FindKernel("CSMain");
+        
         _computeShader.SetTexture(kernelHandle ,"inputTexture", webCamTexture);
         _computeShader.SetTexture(kernelHandle ,"outputTexture", outputTex);
         _computeShader.SetFloats("dimensions", outputTex.width, outputTex.height);
+        
+        var rgbValues = lpipCoreManager.GetMaxAllowedRGBValues();
+        _computeShader.SetFloats("maxRGBValues",rgbValues.x , rgbValues.y, rgbValues.z);
 
         var component = _lpipCoreManager.copy.GetComponent<RawImage>();
         component.texture = outputTex;
@@ -57,6 +61,7 @@ public class LPIPRunningState : LPIPBaseState
                 minY = outputTex.height + 1,
                 maxX = 0,
                 maxY = 0,
+                detected = 0,
             }
         };
 
@@ -66,7 +71,7 @@ public class LPIPRunningState : LPIPBaseState
 
     public override void UpdateState()
     {
-        ComputeBuffer computeBuffer = new ComputeBuffer(_bounds.Length, sizeof(int)*4);
+        ComputeBuffer computeBuffer = new ComputeBuffer(_bounds.Length, sizeof(int)*5);
         computeBuffer.SetData(_bounds);
         _computeShader.SetBuffer(kernelHandle, "bounds", computeBuffer);
         _computeShader.Dispatch(kernelHandle, Mathf.CeilToInt(outputTex.width / 8f), Mathf.CeilToInt(outputTex.height / 8f),1); 
@@ -86,7 +91,8 @@ public class LPIPRunningState : LPIPBaseState
             emptyFrames++;
         }
 
-        bool updateMarker = !(_bounds[0].minX == outputTex.width + 1  && _bounds[0].minY == outputTex.height + 1);
+        //bool updateMarker = !(_bounds[0].minX == outputTex.width + 1  && _bounds[0].minY == outputTex.height + 1);
+        bool updateMarker = _bounds[0].detected == 1 && (_bounds[0].minX >= 0 && _bounds[0].minY >= 0 && _bounds[0].maxX <= webCamTexture.width && _bounds[0].maxY <= webCamTexture.height);
 
         if (updateMarker)
         {
@@ -232,5 +238,6 @@ public class LPIPRunningState : LPIPBaseState
         _bounds[0].minY = outputTex.height + 1;
         _bounds[0].maxX = 0;
         _bounds[0].maxY = 0;
+        _bounds[0].detected = 0;
     }
 }
