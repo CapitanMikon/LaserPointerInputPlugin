@@ -30,15 +30,16 @@ public class LPIPCoreManager : MonoBehaviour
 
     private void Awake()
     {
+    }
+
+    private void Start()
+    {
         InitializationState = new LPIPInitializationState();
         ManualCalibrationState = new LPIPManualCalibrationState();
         //AutomaticCalibrationState = new LPIPAutomaticCalibrationState();
         RunningState = new LPIPRunningState();
         StandbyState = new LPIPStandbyState();
-    }
-
-    private void Start()
-    {
+        
         SwitchState(StandbyState);
         //_currentState = StandbyState;
         _currentState.EnterState(this);

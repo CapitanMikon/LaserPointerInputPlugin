@@ -40,6 +40,8 @@ public class LPIPRunningState : LPIPBaseState
     private RenderTexture outputTex;
     private Texture2D tex;
 
+    private Bound[] _bounds;
+
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
         Debug.Log("Entered state {LPIPRunningState}");
@@ -60,10 +62,19 @@ public class LPIPRunningState : LPIPBaseState
         kernelHandle = _computeShader.FindKernel("CSMain");
         _computeShader.SetTexture(kernelHandle ,"inputTexture", webCamTexture);
         _computeShader.SetTexture(kernelHandle ,"outputTexture", outputTex);
+        _computeShader.SetFloats("dimensions", outputTex.width, outputTex.height);
 
         var component = _lpipCoreManager.copy.GetComponent<RawImage>();
         component.texture = outputTex;
-        
+
+        _bounds = new Bound[]{new Bound
+            {
+                minX = outputTex.width + 1,
+                minY = outputTex.height + 1,
+                maxX = 0,
+                maxY = 0,
+            }
+        };
 
         ResetBorders();
         StartLaserDetection();
@@ -71,9 +82,43 @@ public class LPIPRunningState : LPIPBaseState
 
     public override void UpdateState()
     {
+        ComputeBuffer computeBuffer = new ComputeBuffer(_bounds.Length, sizeof(int)*4);
+        computeBuffer.SetData(_bounds);
+        _computeShader.SetBuffer(kernelHandle, "bounds", computeBuffer);
         _computeShader.Dispatch(kernelHandle, Mathf.CeilToInt(outputTex.width / 8f), Mathf.CeilToInt(outputTex.height / 8f),1); 
         
+        computeBuffer.GetData(_bounds);
+
+        computeBuffer.Dispose();
         if (beginNoLaserProcedure)
+        {
+            if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
+            {
+                _lpipCoreManager.InvokeOnLaserHitUpDetectedEvent(_lastPosition);
+                emptyFrames = 0;
+                beginNoLaserProcedure = false;
+            }
+
+            emptyFrames++;
+        }
+        
+        bool updateMarker = !(_bounds[0].minX == outputTex.width + 1  && _bounds[0].minY == outputTex.height + 1);
+
+        if (updateMarker)
+        {
+            UpdateMarkerImage();
+            beginNoLaserProcedure = true;
+            detectedFrames++;
+            Debug.LogWarning($"Coords: {_bounds[0].minX}, {_bounds[0].maxX}, {_bounds[0].minY}, {_bounds[0].maxY}");
+        }
+        else if(detectedFrames != 0)
+        {
+            Debug.LogWarning($"No of Frames that detected laser: {detectedFrames}!");
+            detectedFrames = 0;
+        }
+
+        ResetBound();
+        /*if (beginNoLaserProcedure)
         {
             if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
             {
@@ -123,8 +168,8 @@ public class LPIPRunningState : LPIPBaseState
             }
         
             ResetBorders();
-        }
-        
+        }*/
+
     }
 
     private void OnDestroy()
@@ -184,8 +229,8 @@ public class LPIPRunningState : LPIPBaseState
     private void UpdateMarkerImage()
     {
         Debug.Log("Marker was updated!");
-        var centerX = (left.value + right.value) / 2;
-        var centerY = (top.value + bottom.value) / 2;
+        var centerX = (_bounds[0].minX + _bounds[0].maxX) / 2;
+        var centerY = (_bounds[0].minY + _bounds[0].maxY) / 2;
         
         var result = Project(new Vector2(centerX, centerY));
         _lastPosition = result;
@@ -300,4 +345,19 @@ public class LPIPRunningState : LPIPBaseState
         // Restore previously active render texture
         RenderTexture.active = currentActiveRT;
     }
+
+    private void ResetBound()
+    {
+        _bounds[0].minX = outputTex.width + 1;
+        _bounds[0].minY = outputTex.height + 1;
+        _bounds[0].maxX = 0;
+        _bounds[0].maxY = 0;
+    }
 }
+
+public struct Bound {
+    public int minX;
+    public int minY;
+    public int maxX;
+    public int maxY;
+};
