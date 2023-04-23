@@ -3517,7 +3517,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7207772791093800476}
   m_Layer: 0
-  m_Name: Plugin
+  m_Name: LPIP_Plugin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

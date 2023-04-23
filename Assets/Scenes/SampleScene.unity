@@ -1487,7 +1487,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7207772791093800477, guid: 732ac96824c307243bdde7beb0d407dd, type: 3}
       propertyPath: m_Name
-      value: Plugin
+      value: LPIP_Plugin
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 732ac96824c307243bdde7beb0d407dd, type: 3}

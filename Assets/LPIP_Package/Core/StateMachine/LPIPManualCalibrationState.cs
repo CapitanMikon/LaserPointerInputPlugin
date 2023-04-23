@@ -6,14 +6,7 @@ public class LPIPManualCalibrationState : LPIPBaseState
     private LPIPCoreManager _lpipCoreManager;
 
     private bool isCalibrating;
-
     private int clickCounter;
-
-    private Pair restrictionTopLeft;
-    private Pair restrictionBottomRight;
-    
-    private float factorX;
-    private float factorY;
 
     private WindowData _windowData;
 
@@ -38,9 +31,10 @@ public class LPIPManualCalibrationState : LPIPBaseState
         Debug.Log("Entered state {LPIPManualCalibrationState}");
         _lpipCoreManager = lpipCoreManager;
         
-        Initialize();
+        Initialize(); 
+        
         //try load saved calibration
-        //else start anew
+        //or start anew
         
         StartCalibration();
     }
@@ -127,28 +121,10 @@ public class LPIPManualCalibrationState : LPIPBaseState
         _lpipCoreManager.SwitchState(_lpipCoreManager.RunningState);
     }
 
-    /*private void RestartCalibration()
-    {
-        _lpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Restart);
-        Debug.Log("Restarting calibration. Fired event!");
-        _lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
-    }
-    
-    private void CancelCalibration()
-    {
-        _lpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Cancel);
-        Debug.Log("Cancelling calibration. Fired event!");
-        _lpipCoreManager.SwitchState(_lpipCoreManager.InitializationState);
-    }*/
-
     private void SaveCalibrationData()
     {
         var calibrationData = new LPIPCalibrationData
         {
-            restrictionTopLeft = restrictionTopLeft,
-            restrictionBottomRight = restrictionBottomRight,
-            factorX = factorX,
-            factorY = factorY,
             real = real,
             ideal = ideal,
         };

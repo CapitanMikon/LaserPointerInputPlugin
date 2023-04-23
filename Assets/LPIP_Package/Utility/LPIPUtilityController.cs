@@ -49,6 +49,7 @@ public class LPIPUtilityController : MonoBehaviour
     public void CalibratePlugin()
     {
         LPIPCoreController.Instance.ReCalibrateLPIP();
+        cameraFeedImage.texture = _webCamTexture; // replace old texture with camera texture so user can see what camera see, since it is overwritten by Core
     }
 
     public void ConfigurationSetupSave()
@@ -86,7 +87,6 @@ public class LPIPUtilityController : MonoBehaviour
 
     public void ConfigurationSetupEnter()
     {
-        cameraFeedImage.texture = _webCamTexture; // replace old texture with camera texture so user can see what camera see, since it is overwritten by Core
         ConfigurationMenuContent.SetActive(true);
         CalibrationMenuContent.SetActive(false);
     }
