@@ -63,7 +63,7 @@ public class GridController : MonoBehaviour
             _uiGridRenderer.SetSelected(Vector2Int.one * -1);
             _uiGridRenderer.SetVerticesDirty();
         }
-        Debug.Log($"Start: Resolution = <color=green>{Screen.width}, {Screen.height}</color>");
+        //Debug.Log($"Start: Resolution = <color=green>{Screen.width}, {Screen.height}</color>");
     }
 
     private Vector2Int GetGridCellFromMouseClick()

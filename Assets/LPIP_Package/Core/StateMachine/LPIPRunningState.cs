@@ -27,6 +27,14 @@ public class LPIPRunningState : LPIPBaseState
     private Texture2D tex;
 
     private Bound[] _bounds;
+    
+    
+    //
+    private Vector2 idealAvg;
+    private Vector2 idealStd;
+    
+    private Vector2 realAvg;
+    private Vector2 realStd;
 
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
@@ -36,6 +44,8 @@ public class LPIPRunningState : LPIPBaseState
         webCamTexture = _lpipCoreManager.WebCamTexture;
         _lpipCalibrationData = _lpipCoreManager.LpipCalibrationData;
 
+        Init();
+        
         outputTex = new RenderTexture(1920, 1080, 0);
         outputTex.enableRandomWrite = true;
         outputTex.Create();
@@ -143,93 +153,102 @@ public class LPIPRunningState : LPIPBaseState
         var centerX = (_bounds[0].minX + _bounds[0].maxX) / 2;
         var centerY = (_bounds[0].minY + _bounds[0].maxY) / 2;
         
-        var result = Project(new Vector2(centerX, centerY));
+        var result = Project(centerX, centerY);
         _lastPosition = result;
         _lpipCoreManager.InvokeOnLaserHitDownDetectedEvent(result);
     }
-    float Determinant(float a, float b, float c, float d)
-    {
-        return a * d - b * c;
-    }
 
-    Vector2 Solve(Vector2[] A, Vector2 B)
+    private void Init()
     {
-        var det = Determinant(A[0][0], A[1][0], A[0][1], A[1][1]);
-        var x = Determinant(B[0], A[1][0], B[1], A[1][1]) / det;
-        var y = Determinant(A[0][0], B[0], A[0][1], B[1]) / det;
-        return new Vector2(x,y);
-    }
-
-    Vector3 Triangle(Vector2[] pts, Vector2 p)
-    {
-        Vector2 a = new Vector2(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]);
-        Vector2 b = new Vector2(pts[2][0] - pts[0][0], pts[2][1] - pts[0][1]);
-        Vector2 c = new Vector2(p[0] - pts[0][0], p[1] - pts[0][1]);
-
-        Vector2[] ab = new Vector2[2]
+        idealAvg = new Vector2(0, 0);
+        for (int i = 0; i < _lpipCalibrationData.ideal.Length; i++)
         {
-            a,
-            b
+            idealAvg += _lpipCalibrationData.ideal[i];
+
+            realAvg += _lpipCalibrationData.real[i];
+        }
+
+        idealAvg /= _lpipCalibrationData.ideal.Length;
+        realAvg /= _lpipCalibrationData.real.Length;
+        
+        //calculate std
+
+        var sodIdealX = 0.0f;
+        var sodIdealY = 0.0f;
+        
+        var sodRealX = 0.0f;
+        var sodRealY = 0.0f;
+        for (int i = 0; i < _lpipCalibrationData.ideal.Length; i++)
+        {
+            sodIdealX += _lpipCalibrationData.ideal[i].x * _lpipCalibrationData.ideal[i].x;
+            sodIdealY += _lpipCalibrationData.ideal[i].y * _lpipCalibrationData.ideal[i].y;
+            
+            sodRealX += _lpipCalibrationData.real[i].x * _lpipCalibrationData.real[i].x;
+            sodRealY += _lpipCalibrationData.real[i].y * _lpipCalibrationData.real[i].y;
+        }
+
+        float sodAvgIdealX = sodIdealX / _lpipCalibrationData.ideal.Length;
+        float sodAvgIdealY = sodIdealY / _lpipCalibrationData.ideal.Length;
+        
+        float sodAvgRealX = sodRealX / _lpipCalibrationData.real.Length;
+        float sodAvgRealY = sodRealY / _lpipCalibrationData.real.Length;
+
+        idealStd = new Vector2(Mathf.Sqrt(sodAvgIdealX - (idealAvg.x*idealAvg.x)), Mathf.Sqrt(sodAvgIdealY - (idealAvg.y*idealAvg.y)));
+        realStd = new Vector2(Mathf.Sqrt(sodAvgRealX - (realAvg.x*realAvg.x)), Mathf.Sqrt(sodAvgRealY - (realAvg.y*realAvg.y)));
+
+        
+        for (int i = 0; i < _lpipCalibrationData.ideal.Length; i++)
+        {
+            var tmp = (_lpipCalibrationData.ideal[i] - idealAvg) / idealStd;
+            _lpipCalibrationData.ideal[i] = tmp;
+            
+            tmp = (_lpipCalibrationData.real[i] - realAvg) / realStd;
+            _lpipCalibrationData.real[i] = tmp;
+        }
+    }
+    
+    Vector2 Project(float x, float y)
+    {
+        var a1 = new Vector2(x, y);
+        var a2 = a1 - realAvg;
+        var a3 = a2 / realStd;
+
+        var d = 1f;
+        
+        
+        // q @ real.T
+        var mat = new Vector4()
+        {
+            x = _lpipCalibrationData.real[0].x * a3.x + _lpipCalibrationData.real[0].y * a3.y,
+            y = _lpipCalibrationData.real[1].x * a3.x + _lpipCalibrationData.real[1].y * a3.y,
+            z = _lpipCalibrationData.real[2].x * a3.x + _lpipCalibrationData.real[2].y * a3.y,
+            w = _lpipCalibrationData.real[3].x * a3.x + _lpipCalibrationData.real[3].y * a3.y,
+        };
+
+        var mat2 = mat / d;
+        
+        var c = SoftMax(mat2);
+        
+        var p = new Vector2()
+        {
+            x = c.x * _lpipCalibrationData.ideal[0].x + c.y * _lpipCalibrationData.ideal[1].x + c.z * _lpipCalibrationData.ideal[2].x + c.w * _lpipCalibrationData.ideal[3].x,
+            y = c.x * _lpipCalibrationData.ideal[0].y + c.y * _lpipCalibrationData.ideal[1].y + c.z * _lpipCalibrationData.ideal[2].y + c.w * _lpipCalibrationData.ideal[3].y,
         };
         
-        Vector2 d = Solve(ab,c);
-        return new Vector3(1 - d[0] - d[1], d[0], d[1]);
+        return (p * idealStd) + idealAvg;
     }
 
-    Vector2 Dot(Vector2[] pts, Vector3 k)
+    private Vector4 SoftMax(Vector4 v)
     {
-        return new Vector2(pts[0][0] * k[0] + pts[1][0] * k[1] + pts[2][0] * k[2],
-            pts[0][1] * k[0] + pts[1][1] * k[1] + pts[2][1] * k[2]);
-    }
-
-    Vector2 Round(Vector2 t)
-    {
-        return new Vector2(Convert.ToInt32(t.x), Convert.ToInt32(t.y));
-    }
-
-    Vector2 Project(Vector2 pos)
-    {
-        var i = 0;
-        var j = 2;
-        //Vector2 n = new Vector2(real[i].y - real[j].y, real[j].x - real[i].x);
-        Vector2 v = new Vector2(_lpipCalibrationData.real[i].x - _lpipCalibrationData.real[j].x, _lpipCalibrationData.real[i].y - _lpipCalibrationData.real[j].y);
-        //var q = n.x * real[i].x + n.y * real[i].y;
-        var q = (v.y * _lpipCalibrationData.real[j].x - v.x * _lpipCalibrationData.real[j].y) * -1;
-
-        if (v.y * pos.x -v.x * pos.y + q >= 0)
+        var temp = new Vector4(0.0f,0.0f,0.0f,0.0f);
+        for (int i = 0; i < 4; i++)
         {
-            Vector2[] pts = new Vector2[3]{
-                _lpipCalibrationData.real[0],
-                _lpipCalibrationData.real[2],
-                _lpipCalibrationData.real[3]
-            };
-            Vector2[] pts2 = new Vector2[3]{
-                _lpipCalibrationData.ideal[0],
-                _lpipCalibrationData.ideal[2],
-                _lpipCalibrationData.ideal[3]
-            };
-            var k = Triangle(pts,pos);
-            //DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Side);
-            //DebugTextController.Instance.AppendText("Top",DebugTextController.DebugTextGroup.Side);
-            return Dot(pts2,k);
+            temp[i] = Mathf.Exp(v[i]);
         }
-        else
-        {
-            Vector2[] pts = new Vector2[3]{
-                _lpipCalibrationData.real[0],
-                _lpipCalibrationData.real[2],
-                _lpipCalibrationData.real[1]
-            };
-            Vector2[] pts2 = new Vector2[3]{
-                _lpipCalibrationData.ideal[0],
-                _lpipCalibrationData.ideal[2],
-                _lpipCalibrationData.ideal[1]
-            };
-            //DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Side);
-            //DebugTextController.Instance.AppendText("Bot",DebugTextController.DebugTextGroup.Side);
-            var k = Triangle(pts,pos);
-            return Dot(pts2,k);
-        }
+
+        var sum = temp.x + temp.y + temp.z + temp.w;
+        
+        return temp / sum;
     }
 
     private void ResetBound()
