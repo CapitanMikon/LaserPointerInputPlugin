@@ -9,6 +9,15 @@ public class LPIPManualCalibrationState : LPIPBaseState
     private int clickCounter;
 
     private WindowData _windowData;
+    private CameraData _cameraData;
+    
+    
+    private bool firstClick;
+    Vector2 restrictionTopLeft = Vector2.zero;
+    Vector2 restrictionBottomRight = Vector2.zero;
+    
+    private float factorX;
+    private float factorY;
 
     private Vector2[] real = new Vector2[4]{
         new Vector2(0, 0),
@@ -28,10 +37,13 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
+        firstClick = true;
         Debug.Log("Entered state {LPIPManualCalibrationState}");
         _lpipCoreManager = lpipCoreManager;
         
-        Initialize(); 
+        Initialize();
+
+        _cameraData = _lpipCoreManager.CameraData;
         
         //try load saved calibration
         //or start anew
@@ -47,29 +59,26 @@ public class LPIPManualCalibrationState : LPIPBaseState
             {
                 Vector2 screenPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
                 Debug.Log($"Mouse click at [{screenPosition.x}, {screenPosition.y}]");
-                switch (clickCounter)
+                if (firstClick)
                 {
-                    case 0:
-                        real[0].x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
-                        real[0].y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
-                        break;
-                    case 1:
-                        real[1].x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
-                        real[1].y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
-                        break;
-                    case 2:
-                        real[2].x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
-                        real[2].y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
-                        break;
-                    case 3:
-                        real[3].x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
-                        real[3].y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
-                        Debug.Log("Calibrating ended.");
-                        EndCalibration();
-                        break;
+                    restrictionTopLeft.x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
+                    restrictionTopLeft.y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
+                    firstClick = false;
                 }
+                else
+                {
+                    restrictionBottomRight.x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
+                    restrictionBottomRight.y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
+                    isCalibrating = false;
+                    //calculate factors of camera resolution and selected area resolution
+                    var restrictedZoneHeight = Mathf.Abs(restrictionTopLeft.y - restrictionBottomRight.y);
+                    var restrictedZoneWidth = Mathf.Abs(restrictionTopLeft.x - restrictionBottomRight.x);
+                    factorY = Convert.ToSingle(_cameraData.CAMERA_HEIGHT) / restrictedZoneHeight;
+                    factorX = Convert.ToSingle(_cameraData.CAMERA_WIDTH) / restrictedZoneWidth;
 
-                clickCounter++;
+                    Debug.LogWarning($"Scaling factor is {factorX}:{factorY}");
+                    EndCalibration();
+                }
             }
         }
     }
@@ -127,6 +136,10 @@ public class LPIPManualCalibrationState : LPIPBaseState
         {
             real = real,
             ideal = ideal,
+            factorX = factorX,
+            factorY = factorY,
+            restrictionBottomRight = restrictionBottomRight,
+            restrictionTopLeft = restrictionTopLeft,
         };
 
         _lpipCoreManager.LpipCalibrationData = calibrationData;

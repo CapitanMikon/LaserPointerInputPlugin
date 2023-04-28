@@ -4,6 +4,11 @@ public struct LPIPCalibrationData
 {
     public Vector2[] real;
     public Vector2[] ideal;
+    public float factorX;
+    public float factorY;
+
+    public Vector2 restrictionBottomRight;
+    public Vector2 restrictionTopLeft;
 }
 
 public struct Bound {
