@@ -64,6 +64,11 @@ public class GridController : MonoBehaviour
             _uiGridRenderer.SetVerticesDirty();
         }
         //Debug.Log($"Start: Resolution = <color=green>{Screen.width}, {Screen.height}</color>");
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            CalculateAverage();
+        }
+        
     }
 
     private Vector2Int GetGridCellFromMouseClick()
@@ -167,6 +172,34 @@ public class GridController : MonoBehaviour
             var delta = (laserPos - currentSelectedGridCellPos).magnitude;
             tmpTextUi.text = $"Δ {delta}f";
         }
+    }
+    
+    private void CalculateAverage()
+    {
+        int counter = 0;
+        float sum = 0;
+        for (int i = 0; i < labelRefMatrix.Count; i++)
+        {
+            for (int j = 0; j < labelRefMatrix[i].Count; j++)
+            {
+                if(labelRefMatrix[i][j].TryGetComponent(out TextMeshProUGUI tmpTextUi))
+                {
+                    Regex r = new Regex("[1-9][0-9]*[,][0-9]*");
+                    MatchCollection matches = r.Matches(tmpTextUi.text);
+                    if (matches.Count != 0)
+                    {
+                        counter++;
+                        float count = Single.Parse(matches[0].Value);
+                        sum += count;
+                    }
+                }
+            }
+        }
+
+        var avg = sum / counter;
+        DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.MouseClickPos);
+        DebugTextController.Instance.AppendText($"Avg: {avg}, SUM= {sum}, TOTAL = {counter}", DebugTextController.DebugTextGroup.MouseClickPos);
+        
     }
 
     private void OnValidate()
