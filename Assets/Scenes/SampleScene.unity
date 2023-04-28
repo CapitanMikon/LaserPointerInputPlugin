@@ -872,6 +872,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: AccuracyTestModule
       objectReference: {fileID: 0}
+    - target: {fileID: 2492869849602178161, guid: 404d58b3ab0eb0240b54013e9d9b76fe, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 5369382594583735488, guid: 404d58b3ab0eb0240b54013e9d9b76fe, type: 3}
       propertyPath: m_RootOrder
       value: 6
