@@ -163,8 +163,8 @@ public class GridController : MonoBehaviour
 
     private void CalculateAverage()
     {
-        int counter = 0;
-        float sum = 0;
+        int countPriemer = 0;
+        float sumPriemer = 0;
         for (int i = 0; i < labelRefMatrix.Count; i++)
         {
             for (int j = 0; j < labelRefMatrix[i].Count; j++)
@@ -175,19 +175,42 @@ public class GridController : MonoBehaviour
                     MatchCollection matches = r.Matches(tmpTextUi.text);
                     if (matches.Count != 0)
                     {
-                        counter++;
+                        countPriemer++;
                         float count = Single.Parse(matches[0].Value);
-                        sum += count;
+                        sumPriemer += count;
                     }
                 }
             }
         }
 
-        var avg = sum / counter;
-        DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.MouseClickPos);
-        DebugTextController.Instance.AppendText($"Avg: {avg}, SUM= {sum}, TOTAL = {counter}", DebugTextController.DebugTextGroup.MouseClickPos);
+        float priemer = sumPriemer / countPriemer;
+
+        float sumRozptyl = 0;
+        int countRozptyl = 0;
+        for (int i = 0; i < labelRefMatrix.Count; i++)
+        {
+            for (int j = 0; j < labelRefMatrix[i].Count; j++)
+            {
+                if(labelRefMatrix[i][j].TryGetComponent(out TextMeshProUGUI tmpTextUi))
+                {
+                    Regex r = new Regex("[1-9][0-9]*[,][0-9]*");
+                    MatchCollection matches = r.Matches(tmpTextUi.text);
+                    if (matches.Count != 0)
+                    {
+                        countRozptyl++;
+                        float number = Single.Parse(matches[0].Value);
+                        sumRozptyl += ((number - priemer)*(number - priemer));
+                    }
+                }
+            }
+        }
         
+        var rozptyl = 1/(Convert.ToSingle(countRozptyl) - 1) * sumRozptyl;
+
+        DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.MouseClickPos);
+        DebugTextController.Instance.AppendText($"VyberPriemer: {priemer} & (S={sumPriemer}, T={countPriemer}. Rozptyl: {rozptyl} & (S={sumRozptyl}, T={countRozptyl}))", DebugTextController.DebugTextGroup.MouseClickPos);
     }
+
 
     private void UpdateLabelWithPosition(Vector2 laserPos)
     {
