@@ -133,9 +133,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f000a2d952f60f489ac6bac77eaed93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  webcamImageHolder: {fileID: 0}
-  webCamTexture: {fileID: 0}
   PROJECTOR_DISPLAY_ID: 0
+  copy: {fileID: 0}
+  computeShader: {fileID: 7200000, guid: 34c4e57785a17ce4796506d867c30dc2, type: 3}
 --- !u!1 &7007035413667044255
 GameObject:
   m_ObjectHideFlags: 0

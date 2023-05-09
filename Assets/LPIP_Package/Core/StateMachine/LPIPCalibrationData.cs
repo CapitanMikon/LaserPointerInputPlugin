@@ -2,27 +2,17 @@ using UnityEngine;
 
 public struct LPIPCalibrationData
 {
-    public Pair restrictionTopLeft;
-    public Pair restrictionBottomRight;
-
-    public float factorX;
-    public float factorY;
-
     public Vector2[] real;
     public Vector2[] ideal;
 }
 
-public struct BorderPoint
-{
-    public double luminance;
-    public int value;
-}
-
-public struct Pair
-{
-    public int x;
-    public int y;
-}
+public struct Bound {
+    public int minX;
+    public int minY;
+    public int maxX;
+    public int maxY;
+    public int detected;
+};
 
 public struct CameraData
 {

@@ -1,38 +1,33 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.UI;
 
 public class LPIPRunningState : LPIPBaseState
 {
     private LPIPCoreManager _lpipCoreManager;
     
-    private bool laserDetectionIsEnabled = false;
     private bool beginNoLaserProcedure = false;
     
     private const int EMPTY_FRAMES_THRESHOLD = 5;
     private int emptyFrames = 0;
 
     private int detectedFrames = 0; // detect laser and fire event every 9.8 frames avg z toho ako dlho svieti laser
-    
-    //source of const: https://stackoverflow.com/questions/596216/formula-to-determine-perceived-brightness-of-rgb-color
-    private const double R_VALUE = 0.299;
-    private const double G_VALUE = 0.587;
-    private const double B_VALUE = 0.114;
-    private const double PIXEL_LUMINANCE_THRESHOLD = 160;
-    
-    private BorderPoint top;
-    private BorderPoint bottom;
-    private BorderPoint left;
-    private BorderPoint right;
 
     private WebCamTexture webCamTexture;
     private Color32[] webCamPixels;
     
     private LPIPCalibrationData _lpipCalibrationData;
-    private CameraData _cameraData;
-    private WindowData _windowData;
 
     private Vector3 _lastPosition;
-    
+
+    private ComputeShader _computeShader;
+    private int kernelHandle;
+    private RenderTexture outputTex;
+    private Texture2D tex;
+
+    private Bound[] _bounds;
+
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
         Debug.Log("Entered state {LPIPRunningState}");
@@ -40,15 +35,50 @@ public class LPIPRunningState : LPIPBaseState
 
         webCamTexture = _lpipCoreManager.WebCamTexture;
         _lpipCalibrationData = _lpipCoreManager.LpipCalibrationData;
-        _cameraData = _lpipCoreManager.CameraData;
-        _windowData = _lpipCoreManager.WindowData;
+
+        outputTex = new RenderTexture(1920, 1080, 0);
+        outputTex.enableRandomWrite = true;
+        outputTex.Create();
         
-        ResetBorders();
+        tex = new Texture2D(outputTex.width, outputTex.height);
+        
+        _computeShader = _lpipCoreManager.computeShader;
+        kernelHandle = _computeShader.FindKernel("CSMain");
+        
+        _computeShader.SetTexture(kernelHandle ,"inputTexture", webCamTexture);
+        _computeShader.SetTexture(kernelHandle ,"outputTexture", outputTex);
+        _computeShader.SetFloats("dimensions", outputTex.width, outputTex.height);
+        
+        var rgbValues = lpipCoreManager.GetMaxAllowedRGBValues();
+        _computeShader.SetFloats("maxRGBValues",rgbValues.x , rgbValues.y, rgbValues.z);
+
+        var component = _lpipCoreManager.copy.GetComponent<RawImage>();
+        component.texture = outputTex;
+
+        _bounds = new Bound[]{new Bound
+            {
+                minX = outputTex.width + 1,
+                minY = outputTex.height + 1,
+                maxX = 0,
+                maxY = 0,
+                detected = 0,
+            }
+        };
+
+        ResetBound();
         StartLaserDetection();
     }
 
     public override void UpdateState()
     {
+        ComputeBuffer computeBuffer = new ComputeBuffer(_bounds.Length, sizeof(int)*5);
+        computeBuffer.SetData(_bounds);
+        _computeShader.SetBuffer(kernelHandle, "bounds", computeBuffer);
+        _computeShader.Dispatch(kernelHandle, Mathf.CeilToInt(outputTex.width / 8f), Mathf.CeilToInt(outputTex.height / 8f),1); 
+        
+        computeBuffer.GetData(_bounds);
+        computeBuffer.Dispose();
+        
         if (beginNoLaserProcedure)
         {
             if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
@@ -60,119 +90,62 @@ public class LPIPRunningState : LPIPBaseState
 
             emptyFrames++;
         }
-        
-        if (laserDetectionIsEnabled)
+
+        //bool updateMarker = !(_bounds[0].minX == outputTex.width + 1  && _bounds[0].minY == outputTex.height + 1);
+        bool updateMarker = _bounds[0].detected == 1 && (_bounds[0].minX >= 0 && _bounds[0].minY >= 0 && _bounds[0].maxX <= webCamTexture.width && _bounds[0].maxY <= webCamTexture.height);
+
+        if (updateMarker)
         {
-            bool updateMarker = false;
-            webCamPixels = webCamTexture.GetPixels32();
-
-            for (int i = 0; i < webCamPixels.Length; i++)
-            {
-                var pixelLuminance = R_VALUE * webCamPixels[i].r+ G_VALUE * webCamPixels[i].g + B_VALUE * webCamPixels[i].b;
-                int currentX = i % _cameraData.CAMERA_WIDTH;
-                int currentY = i / _cameraData.CAMERA_WIDTH;
-                if (true)//(currentX >= _lpipCalibrationData.restrictionTopLeft.x && currentX <= _lpipCalibrationData.restrictionBottomRight.x
-                   //                                                   && currentY >= _lpipCalibrationData.restrictionBottomRight.y && currentY <= _lpipCalibrationData.restrictionTopLeft.y)//is within restrictions
-                {
-                    if (pixelLuminance > PIXEL_LUMINANCE_THRESHOLD)
-                    {
-                        if(webCamPixels[i].r > 120 && webCamPixels[i].g < 189  && webCamPixels[i].b < 170)//if (hVal <= 15 && sVal >= 60 && vVal > 40)
-                        {
-                            //Debug.LogWarning($"PIXEL: {currentX},{currentY}");
-                            UpdateBorders(currentX, currentY, pixelLuminance);
-                            updateMarker = true;
-                        }
-                    }
-                }
-
-            }
-
-            if (updateMarker)
-            {
-                UpdateMarkerImage();
-                updateMarker = false;
-                beginNoLaserProcedure = true;
-                detectedFrames++;
-            }
-            else if(detectedFrames != 0)
-            {
-                Debug.LogWarning($"No of Frames that detected laser: {detectedFrames}!");
-                detectedFrames = 0;
-            }
-        
-            ResetBorders();
+            UpdateMarkerImage();
+            beginNoLaserProcedure = true;
+            detectedFrames++;
+            Debug.LogWarning($"Coords: {_bounds[0].minX}, {_bounds[0].maxX}, {_bounds[0].minY}, {_bounds[0].maxY}");
         }
-        
+        else if(detectedFrames != 0)
+        {
+            Debug.LogWarning($"No of Frames that detected laser: {detectedFrames}!");
+            detectedFrames = 0;
+        }
+
+        ResetBound();
+
     }
-    
+
+    private void OnDestroy()
+    {
+        outputTex.Release();
+    }
+
     public override void ExitState()
     {
+        var component = _lpipCoreManager.copy.GetComponent<RawImage>();
+        component.material.mainTexture = null;
+        outputTex.Release();
         Debug.Log("Leaving state {LPIPRunningState}");
+        StopLaserDetection();
     }
     
     public void StartLaserDetection()
     {
-        laserDetectionIsEnabled = true;
         _lpipCoreManager.InvokeDetectionStartedEvent();
         Debug.Log("Started laser detection.");
     }
     
     public void StopLaserDetection()
     {
-        laserDetectionIsEnabled = false;
         _lpipCoreManager.InvokeDetectionStoppedEvent();
         Debug.Log("Stopped laser detection."); 
-    }
-    
-    private void UpdateBorders(int x, int y, double luminance)
-    {
-        //top
-        if (top.luminance< luminance && y > top.value)
-        {
-            top.value = y;
-            top.luminance = luminance;
-        }
-        
-        //bottom
-        if (bottom.luminance < luminance && y < bottom.value)
-        {
-            bottom.value = y;
-            bottom.luminance = luminance;
-        }
-        
-        //left
-        if (left.luminance < luminance && x < left.value)
-        {
-            left.value = x;
-            left.luminance = luminance;
-        }
-        
-        //right
-        if (right.luminance < luminance && x > right.value)
-        {
-            right.value = x;
-            right.luminance = luminance;
-        }
     }
 
     private void UpdateMarkerImage()
     {
         Debug.Log("Marker was updated!");
-        var centerX = (left.value + right.value) / 2;
-        var centerY = (top.value + bottom.value) / 2;
+        var centerX = (_bounds[0].minX + _bounds[0].maxX) / 2;
+        var centerY = (_bounds[0].minY + _bounds[0].maxY) / 2;
         
         var result = Project(new Vector2(centerX, centerY));
         _lastPosition = result;
         _lpipCoreManager.InvokeOnLaserHitDownDetectedEvent(result);
-    }
-
-    void ResetBorders()
-    {
-        (top.value, top.luminance) =(0, -1);
-        (bottom.value, bottom.luminance) = (_cameraData.CAMERA_HEIGHT, -1);
-        
-        (left.value, left.luminance) = (_cameraData.CAMERA_WIDTH, -1);
-        (right.value, right.luminance) = ( 0, -1);
     }
     float Determinant(float a, float b, float c, float d)
     {
@@ -257,5 +230,14 @@ public class LPIPRunningState : LPIPBaseState
             var k = Triangle(pts,pos);
             return Dot(pts2,k);
         }
+    }
+
+    private void ResetBound()
+    {
+        _bounds[0].minX = outputTex.width + 1;
+        _bounds[0].minY = outputTex.height + 1;
+        _bounds[0].maxX = 0;
+        _bounds[0].maxY = 0;
+        _bounds[0].detected = 0;
     }
 }
