@@ -151,8 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiGridRenderer: {fileID: 2492869849780104795}
-  cellLabelPrefab: {fileID: 6448097201907484833, guid: fd010c89403789a46bf90545da859c5c,
-    type: 3}
+  cellLabelPrefab: {fileID: 6448097201907484833, guid: fd010c89403789a46bf90545da859c5c, type: 3}
   canvasRoot: {fileID: 2492869849602178164}
   gridSize: {x: 5, y: 5}
   lineThickess: 5
@@ -217,7 +216,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_TargetDisplay: 0
 --- !u!114 &2492869849602178162
 MonoBehaviour:
