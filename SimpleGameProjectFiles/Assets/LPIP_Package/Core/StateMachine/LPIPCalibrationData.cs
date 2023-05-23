@@ -11,6 +11,7 @@ public struct Bound {
     public int minY;
     public int maxX;
     public int maxY;
+    public int detected;
 };
 
 public struct CameraData

@@ -20,6 +20,8 @@ public class LPIPCoreManager : MonoBehaviour
     public GameObject copy;
     public ComputeShader computeShader;
 
+    [SerializeField] private Vector3 maxRGBValues = new Vector3( 0.47f, 0.74f, 0.6667f);
+
     public static event Action OnCalibrationStartedEvent;
     public static event Action<LPIPManualCalibrationState.LPIPCalibrationResult> OnCalibrationFinishedEvent;
     public static event Action OnDetectionStartedEvent;
@@ -88,6 +90,11 @@ public class LPIPCoreManager : MonoBehaviour
         {
             Debug.LogError($"State transition from [{_currentState}] to [{state}] is not allowed!");
         }
+    }
+
+    public Vector3 GetMaxAllowedRGBValues()
+    {
+        return maxRGBValues;
     }
 
     public void InvokeOnLaserHitDownDetectedEvent(Vector2 clickPosition)
