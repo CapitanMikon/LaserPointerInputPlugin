@@ -11,14 +11,14 @@ A plugin that lets you use another input like system with just a laser pointer, 
 
 You will find here:
 
-### [Plugin project files](LaserPointerInputPlugin/tree/main/PluginProjectFiles)
+### [Plugin project files](PluginProjectFiles)
 - contains project files, dev environment and wip features
 - testlab  
-### [Simple game project files](LaserPointerInputPlugin/tree/main/SimpleGameProjectFiles)
+### [Simple game project files](SimpleGameProjectFiles)
 - simple demo game made in unity
 - integrated with plugin
 - showcase of plugin and game interaction + usage
-### [Plugin releases](LaserPointerInputPlugin/releases)
+### [Plugin releases](https://github.com/CapitanMikon/LaserPointerInputPlugin/releases)
 - previous and latest versions
-### [Docs](LaserPointerInputPlugin/tree/main/Docs)
+### [Docs](Docs)
 - manuals, guides, limitations
