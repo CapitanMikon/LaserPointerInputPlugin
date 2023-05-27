@@ -13,3 +13,4 @@ This folder will be populated with guide how to integrate plugin,  how to use it
 - uses gpu for image processing.
 - tested with UI elements of type button, checkbox, toggle. Other might / might not work.
 - accuracy is **relative** i. e. for best accuracy place camera accordingly.
+- at the moment, does not persist between scenes
