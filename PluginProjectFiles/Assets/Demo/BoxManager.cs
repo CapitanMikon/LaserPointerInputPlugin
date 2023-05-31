@@ -23,5 +23,6 @@ public class BoxManager : MonoBehaviour
         {
             b.ResetBox();
         }
+        Debug.LogError("Button Clicked!");
     }
 }
