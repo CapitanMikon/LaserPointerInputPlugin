@@ -21,10 +21,44 @@ float2 dimensions;
 float3 maxRGBValues;
 
 RWStructuredBuffer<Bound> bounds;
+float4 areaOfInterestTop;
+float4 areaOfInterestBottom;
+
+
+float2 CalculateVRight() //1 = i, 2 = j
+{
+    return float2(areaOfInterestBottom[2] - areaOfInterestTop[2], areaOfInterestBottom[3] - areaOfInterestTop[3]);
+}
+
+float CalculateQRight(float2 vRight)
+{
+    return (vRight[1] * areaOfInterestTop[2] - vRight[0] * areaOfInterestTop[3] ) * -1;
+}
+
+bool IsWithinRightBound(float2 v, float q, uint3 id)
+{
+    if(v.y * id.x - v.x * id.y + q >= 0)
+    {
+        return true;
+    }
+    return false;
+}
 
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
+    
+    float2 v = (areaOfInterestBottom[2] - areaOfInterestTop[2], areaOfInterestTop[1] - areaOfInterestTop[3]);
+    float q = (v.y * areaOfInterestTop[1] - v.x * areaOfInterestTop[3]) * -1;
+    //if is within right bound
+    float2 vRight = CalculateVRight();
+    float qRight = CalculateQRight(vRight);
+    if(!IsWithinRightBound(vRight, qRight, id))
+    {
+        outputTexture[id.xy] = float4(0,0,0,1);
+        return;
+    }
+    
     float4 pixel = inputTexture.Load(int3(id.xy, 0));
     //outputTexture[id.xy] = pixel;
     //float pixelLuminance = R_VALUE * (pixel.r *255)+ G_VALUE * (pixel.g *255)+ B_VALUE * (pixel.b*255);
