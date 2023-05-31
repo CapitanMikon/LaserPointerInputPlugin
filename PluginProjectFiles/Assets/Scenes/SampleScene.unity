@@ -1443,7 +1443,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7207772790789665083, guid: 732ac96824c307243bdde7beb0d407dd, type: 3}
       propertyPath: waitMsBeforeNextClick
-      value: 300
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 7207772791093800476, guid: 732ac96824c307243bdde7beb0d407dd, type: 3}
       propertyPath: m_RootOrder

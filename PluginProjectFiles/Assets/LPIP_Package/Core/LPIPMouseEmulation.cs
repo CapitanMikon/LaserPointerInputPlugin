@@ -14,16 +14,14 @@ public class LPIPMouseEmulation : MonoBehaviour
     private PointerEventData _pointerEventData;
 
     private bool _isUIDetected;
-    private bool _clickedLastFrame = false;
+    private bool _mouseUpEventFired = false;
     private bool _allowNextClick = true;
     
     private float _currentFrameClickedTime = 0f;
 
     private void Awake()
     {
-        _isUIDetected = false;
-        _clickedLastFrame = false;
-        _allowNextClick = true;
+        SetUp();
         _guiRaycastResults = new List<RaycastResult>();
             
         /*if (Instance == null)
@@ -34,7 +32,7 @@ public class LPIPMouseEmulation : MonoBehaviour
 
     private void OnEnable()
     {
-        _currentFrameClickedTime = 0f;
+        SetUp();
         LPIPCoreManager.OnLaserHitDownDetectedEvent += EmulateLeftMouseClick;
         LPIPCoreManager.OnLaserHitUpDetectedEvent += HandleMouseUpEvent;
     }
@@ -45,11 +43,19 @@ public class LPIPMouseEmulation : MonoBehaviour
         LPIPCoreManager.OnLaserHitUpDetectedEvent -= HandleMouseUpEvent;
     }
 
+    private void SetUp()
+    {
+        _isUIDetected = false;
+        _mouseUpEventFired = false;
+        _allowNextClick = true;
+        _currentFrameClickedTime = 0f;
+    }
+
     private void EmulateLeftMouseClick(Vector2 clickPosition)
     {
         if (!_allowNextClick)
         {
-            Debug.LogError("Click blocked!");
+            //Debug.LogError("Click blocked!");
             return;
         }
 
@@ -129,32 +135,41 @@ public class LPIPMouseEmulation : MonoBehaviour
             DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.MouseClickPos);
             DebugTextController.Instance.AppendText($"Mouse click emulated at: {clickPosition}", DebugTextController.DebugTextGroup.MouseClickPos);
         }
-        
-        _clickedLastFrame = true;
     }
 
     private void HandleMouseUpEvent(Vector2 pos)
     {
-        Debug.LogError("MOUSE UP!");
-        if (_currentFrameClickedTime <= 0.0f)
+        if (!_mouseUpEventFired)
         {
-        Debug.LogError("MOUSE UP!2");
-            _clickedLastFrame = false;
-            _allowNextClick = true;
+            _mouseUpEventFired = true;
+            //Debug.LogError("MOUSE UP2!");        
         }
     }
 
     private void Update()
     {
-        if (_clickedLastFrame)
+        //cooldown before new click
+        if (!_allowNextClick)
         {
             _currentFrameClickedTime += Time.deltaTime;
+        }
 
-            if (_currentFrameClickedTime > (waitMsBeforeNextClick / 1000f))
+        if (waitMsBeforeNextClick > 0)
+        {
+            if (_mouseUpEventFired && _currentFrameClickedTime > (waitMsBeforeNextClick / 1000f))
             {
+                _allowNextClick = true;
                 _currentFrameClickedTime = 0f;
-                _clickedLastFrame = false;
+                //Debug.LogError("Click enabled!");
+                _mouseUpEventFired = false;
             }
         }
+        else
+        {
+            _allowNextClick = true;
+            _currentFrameClickedTime = 0f;
+            _mouseUpEventFired = false; 
+        }
+
     }
 }
