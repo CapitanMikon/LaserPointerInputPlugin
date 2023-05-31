@@ -21,13 +21,99 @@ float2 dimensions;
 float3 maxRGBValues;
 
 RWStructuredBuffer<Bound> bounds;
+float4 areaOfInterestTop;
+float4 areaOfInterestBottom;
+
+
+float2 CalculateVRight()
+{
+    return float2(areaOfInterestBottom[2] - areaOfInterestTop[2], areaOfInterestBottom[3] - areaOfInterestTop[3]);
+}
+
+float2 CalculateVLeft()
+{
+    return float2(areaOfInterestBottom[0] - areaOfInterestTop[0], areaOfInterestBottom[1] - areaOfInterestTop[1]);
+}
+
+float2 CalculateVTop()
+{
+    return float2(areaOfInterestTop[0] - areaOfInterestTop[2], areaOfInterestTop[1] - areaOfInterestTop[3]);
+}
+
+float2 CalculateVBottom()
+{
+    return float2(areaOfInterestBottom[0] - areaOfInterestBottom[2], areaOfInterestBottom[1] - areaOfInterestBottom[3]);
+}
+
+float CalculateQRight(float2 vRight)
+{
+    return (vRight[1] * areaOfInterestTop[2] - vRight[0] * areaOfInterestTop[3] ) * -1;
+}
+
+float CalculateQLeft(float2 vLeft)
+{
+    return (vLeft[1] * areaOfInterestTop[0] - vLeft[0] * areaOfInterestTop[1] ) * -1;
+}
+
+float CalculateQTop(float2 vTop)
+{
+    return (vTop[1] * areaOfInterestTop[0] - vTop[0] * areaOfInterestTop[1] ) * -1;
+}
+
+float CalculateQBottom(float2 vBottom)
+{
+    return (vBottom[1] * areaOfInterestBottom[0] - vBottom[0] * areaOfInterestBottom[1] ) * -1;
+}
+
+bool IsWithinBound(float2 v, float q, uint3 id, bool invertEquals)
+{
+    if(invertEquals)
+    {
+        if(v.y * id.x - v.x * id.y + q >= 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    if(v.y * id.x - v.x * id.y + q <= 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+//
 
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
+    
+    //if is within right bound
+    float2 vRight = CalculateVRight();
+    float qRight = CalculateQRight(vRight);
+
+    float2 vLeft = CalculateVLeft();
+    float qLeft = CalculateQLeft(vLeft);
+
+    float2 vTop = CalculateVTop();
+    float qTop = CalculateQTop(vTop);
+
+    float2 vBottom = CalculateVBottom();
+    float qBottom = CalculateQBottom(vBottom);
+
+
+    //check if if in area of interest
+    if(!IsWithinBound(vRight, qRight, id, true) || !IsWithinBound(vLeft, qLeft, id, false)
+        || !IsWithinBound(vTop, qTop, id, false) || !IsWithinBound(vBottom, qBottom, id, true))
+    {
+        outputTexture[id.xy] = float4(0,0,0,1);
+        return;
+    }
+    
+    //when in area of interest find pixel
     float4 pixel = inputTexture.Load(int3(id.xy, 0));
-    //outputTexture[id.xy] = pixel;
-    //float pixelLuminance = R_VALUE * (pixel.r *255)+ G_VALUE * (pixel.g *255)+ B_VALUE * (pixel.b*255);
+
     if(pixel.r > maxRGBValues[0] && pixel.g < maxRGBValues[1] && pixel.b < maxRGBValues[2])
     {
         outputTexture[id.xy] = float4(1,0,0,1);
@@ -44,6 +130,6 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         }
     }else
     {
-        outputTexture[id.xy] = float4(0,0,0,1);
+        outputTexture[id.xy] = float4(0.5,0.5,0.5,1);
     }
 }

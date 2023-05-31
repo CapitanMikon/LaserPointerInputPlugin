@@ -48,6 +48,8 @@ public class LPIPRunningState : LPIPBaseState
         _computeShader.SetTexture(kernelHandle ,"inputTexture", webCamTexture);
         _computeShader.SetTexture(kernelHandle ,"outputTexture", outputTex);
         _computeShader.SetFloats("dimensions", outputTex.width, outputTex.height);
+        _computeShader.SetFloats("areaOfInterestTop", _lpipCalibrationData.real[3].x, _lpipCalibrationData.real[3].y, _lpipCalibrationData.real[2].x, _lpipCalibrationData.real[2].y);
+        _computeShader.SetFloats("areaOfInterestBottom", _lpipCalibrationData.real[0].x, _lpipCalibrationData.real[0].y, _lpipCalibrationData.real[1].x, _lpipCalibrationData.real[1].y);
         
         var rgbValues = lpipCoreManager.GetMaxAllowedRGBValues();
         _computeShader.SetFloats("maxRGBValues",rgbValues.x , rgbValues.y, rgbValues.z);

@@ -16,10 +16,6 @@ public class LPIPUtilityPortal : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            lpipUtilityController.OpenUtilityUI();
-        }
         if (Input.GetKeyDown(KeyCode.F1))
         {
             lpipUtilityController.SetActiveCameraFeed(true);
