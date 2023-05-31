@@ -8,7 +8,6 @@ public class LPIPMouseEmulation : MonoBehaviour
 {
 
     [SerializeField] [Range(0,5000)]private float waitMsBeforeNextClick = 0;
-    //private static LPIPMouseEmulation Instance;
 
     private List<RaycastResult> _guiRaycastResults;
     private PointerEventData _pointerEventData;
@@ -23,11 +22,6 @@ public class LPIPMouseEmulation : MonoBehaviour
     {
         SetUp();
         _guiRaycastResults = new List<RaycastResult>();
-            
-        /*if (Instance == null)
-        {
-            Instance = this;
-        }*/
     }
 
     private void OnEnable()
@@ -55,13 +49,10 @@ public class LPIPMouseEmulation : MonoBehaviour
     {
         if (!_allowNextClick)
         {
-            //Debug.LogError("Click blocked!");
             return;
         }
 
         _allowNextClick = false;
-        
-        //Debug.LogWarning($"Emulated LMB Click at {clickPosition}");
         
         _isUIDetected = false;
         //Set the Pointer Event Position
@@ -142,7 +133,6 @@ public class LPIPMouseEmulation : MonoBehaviour
         if (!_mouseUpEventFired)
         {
             _mouseUpEventFired = true;
-            //Debug.LogError("MOUSE UP2!");        
         }
     }
 
@@ -160,7 +150,6 @@ public class LPIPMouseEmulation : MonoBehaviour
             {
                 _allowNextClick = true;
                 _currentFrameClickedTime = 0f;
-                //Debug.LogError("Click enabled!");
                 _mouseUpEventFired = false;
             }
         }

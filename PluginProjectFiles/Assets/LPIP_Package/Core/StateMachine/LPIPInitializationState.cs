@@ -19,12 +19,11 @@ public class LPIPInitializationState : LPIPBaseState
     
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("Entered state {LPIPInitializationState}");
+        //Debug.Log("Entered state {LPIPInitializationState}");
         _lpipCoreManager = lpipCoreManager;
         _webCamTexture = _lpipCoreManager.WebCamTexture;
         Initialize();
         SaveData();
-        //_lpipCoreManager.SwitchState(_lpipCoreManager.ManualCalibrationState);
     }
 
     public override void UpdateState()
@@ -33,7 +32,7 @@ public class LPIPInitializationState : LPIPBaseState
     
     public override void ExitState()
     {
-        Debug.Log("Leaving state {LPIPInitializationState}");
+        //Debug.Log("Leaving state {LPIPInitializationState}");
     }
 
     void Initialize()

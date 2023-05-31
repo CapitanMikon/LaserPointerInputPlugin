@@ -64,33 +64,4 @@ public class LPIPCoreController : MonoBehaviour
       _lpipCoreManager.PROJECTOR_DISPLAY_ID = projectorDisplayId;
       isProjectorIdConfigured = true;
   }
-
-  private void Update()
-  {
-      /*else if (Input.GetKeyDown(KeyCode.F5))
-      {
-          ReCalibrateLPIP();
-      }else if (Input.GetKeyDown(KeyCode.S))
-      {
-          InitializeLPIP();
-      }else if (Input.GetKeyDown(KeyCode.C))
-      {
-          SetProjectorDisplayId(0);
-          
-          WebCamDevice[] devices = WebCamTexture.devices;
-          WebCamTexture webCamTexture = new WebCamTexture();
-        
-          for (var i = 0; i < devices.Length; i++)
-          {
-              Debug.Log("camera <" + devices[i].name + "> detected");
-          }
-
-          if (devices.Length > 0)
-          {
-              webCamTexture = new WebCamTexture(devices[0].name);
-              webCamTexture.Play();
-          }
-          SetWebCamTexture(webCamTexture);
-      }*/
-  }
 }
