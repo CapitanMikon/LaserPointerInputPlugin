@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class LPIPMouseEmulation : MonoBehaviour
 {
 
-    [SerializeField] [Range(0,100)]private float waitMsBeforeNextClick = 0;
+    [SerializeField] [Range(0,5000)]private float waitMsBeforeNextClick = 0;
     //private static LPIPMouseEmulation Instance;
 
     private List<RaycastResult> _guiRaycastResults;
