@@ -83,8 +83,6 @@ bool IsWithinBound(float2 v, float q, uint3 id, bool invertEquals)
     return false;
 }
 
-//
-
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {

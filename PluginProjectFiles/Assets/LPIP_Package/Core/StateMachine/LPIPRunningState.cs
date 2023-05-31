@@ -12,7 +12,7 @@ public class LPIPRunningState : LPIPBaseState
     private const int EMPTY_FRAMES_THRESHOLD = 5;
     private int emptyFrames = 0;
 
-    private int detectedFrames = 0; // detect laser and fire event every 9.8 frames avg z toho ako dlho svieti laser
+    private int detectedFrames = 0; // detect laser and fire event every 9.8 frames
 
     private WebCamTexture webCamTexture;
     private Color32[] webCamPixels;
@@ -30,7 +30,7 @@ public class LPIPRunningState : LPIPBaseState
 
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        Debug.Log("Entered state {LPIPRunningState}");
+        //Debug.Log("Entered state {LPIPRunningState}");
         _lpipCoreManager = lpipCoreManager;
 
         webCamTexture = _lpipCoreManager.WebCamTexture;
@@ -92,8 +92,7 @@ public class LPIPRunningState : LPIPBaseState
 
             emptyFrames++;
         }
-
-        //bool updateMarker = !(_bounds[0].minX == outputTex.width + 1  && _bounds[0].minY == outputTex.height + 1);
+        
         bool updateMarker = _bounds[0].detected == 1 && (_bounds[0].minX >= 0 && _bounds[0].minY >= 0 && _bounds[0].maxX <= webCamTexture.width && _bounds[0].maxY <= webCamTexture.height);
 
         if (updateMarker)
@@ -123,25 +122,25 @@ public class LPIPRunningState : LPIPBaseState
         var component = _lpipCoreManager.copy.GetComponent<RawImage>();
         component.material.mainTexture = null;
         outputTex.Release();
-        Debug.Log("Leaving state {LPIPRunningState}");
+        //Debug.Log("Leaving state {LPIPRunningState}");
         StopLaserDetection();
     }
     
     public void StartLaserDetection()
     {
         _lpipCoreManager.InvokeDetectionStartedEvent();
-        Debug.Log("Started laser detection.");
+        //Debug.Log("Started laser detection.");
     }
     
     public void StopLaserDetection()
     {
         _lpipCoreManager.InvokeDetectionStoppedEvent();
-        Debug.Log("Stopped laser detection."); 
+        //Debug.Log("Stopped laser detection."); 
     }
 
     private void UpdateMarkerImage()
     {
-        Debug.Log("Marker was updated!");
+        //Debug.Log("Marker was updated!");
         var centerX = (_bounds[0].minX + _bounds[0].maxX) / 2;
         var centerY = (_bounds[0].minY + _bounds[0].maxY) / 2;
         
@@ -193,9 +192,7 @@ public class LPIPRunningState : LPIPBaseState
     {
         var i = 0;
         var j = 2;
-        //Vector2 n = new Vector2(real[i].y - real[j].y, real[j].x - real[i].x);
         Vector2 v = new Vector2(_lpipCalibrationData.real[i].x - _lpipCalibrationData.real[j].x, _lpipCalibrationData.real[i].y - _lpipCalibrationData.real[j].y);
-        //var q = n.x * real[i].x + n.y * real[i].y;
         var q = (v.y * _lpipCalibrationData.real[j].x - v.x * _lpipCalibrationData.real[j].y) * -1;
 
         if (v.y * pos.x -v.x * pos.y + q >= 0)
@@ -211,8 +208,6 @@ public class LPIPRunningState : LPIPBaseState
                 _lpipCalibrationData.ideal[3]
             };
             var k = Triangle(pts,pos);
-            //DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Side);
-            //DebugTextController.Instance.AppendText("Top",DebugTextController.DebugTextGroup.Side);
             return Dot(pts2,k);
         }
         else
@@ -227,8 +222,6 @@ public class LPIPRunningState : LPIPBaseState
                 _lpipCalibrationData.ideal[2],
                 _lpipCalibrationData.ideal[1]
             };
-            //DebugTextController.Instance.ResetText(DebugTextController.DebugTextGroup.Side);
-            //DebugTextController.Instance.AppendText("Bot",DebugTextController.DebugTextGroup.Side);
             var k = Triangle(pts,pos);
             return Dot(pts2,k);
         }
