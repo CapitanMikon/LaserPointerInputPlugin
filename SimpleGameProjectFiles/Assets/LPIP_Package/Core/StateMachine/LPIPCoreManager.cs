@@ -42,7 +42,6 @@ public class LPIPCoreManager : MonoBehaviour
     private void Start()
     {
         SwitchState(StandbyState);
-        //_currentState = StandbyState;
         _currentState.EnterState(this);
     }
     
@@ -81,7 +80,7 @@ public class LPIPCoreManager : MonoBehaviour
     {
         if (TransitionToStateIsAllowed(state))
         {
-            Debug.Log($"Changing state from <color=#c1a730>{_currentState}</color> to <color=#36ba1f>{state}</color>");
+            //Debug.Log($"Changing state from <color=#c1a730>{_currentState}</color> to <color=#36ba1f>{state}</color>");
             _currentState?.ExitState();
             _currentState = state;
             _currentState?.EnterState(this);
