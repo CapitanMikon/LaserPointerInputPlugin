@@ -22,3 +22,4 @@ You will find here:
 - previous and latest versions
 ### [Docs](Docs)
 - manuals, guides, limitations
+### [Video showcase](Docs/Video%20showcase)
