@@ -1,8 +1,5 @@
 # Video showcase / demonstration
 
-Short video showcase / demonstration is available at: <url> link_tba
+Short video showcase / demonstration is available below (external link to google drive):
   
-  
-  V príprave, dostupné by malo byť do 5.6.2023, najneskôr 7.6.2023.
-  
-  In progress, available by 5.6.2023, no later than 7.6.2023. 
+  [![Watch the video](...)](https://drive.google.com/file/d/1sGNpctu9ml0KZk9Z47b1jew4aPfi8f6t/view?usp=sharing)
