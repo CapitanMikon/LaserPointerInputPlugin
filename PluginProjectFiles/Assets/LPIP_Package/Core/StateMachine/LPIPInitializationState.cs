@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class LPIPInitializationState : LPIPBaseState
 {
-    private LPIPCoreManager _lpipCoreManager;
-    
     
     //scaling from game to camera
     private int GAME_WINDOW_WIDTH = -1;
@@ -20,8 +18,8 @@ public class LPIPInitializationState : LPIPBaseState
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
         //Debug.Log("Entered state {LPIPInitializationState}");
-        _lpipCoreManager = lpipCoreManager;
-        _webCamTexture = _lpipCoreManager.WebCamTexture;
+        LpipCoreManager = lpipCoreManager;
+        _webCamTexture = LpipCoreManager.WebCamTexture;
         Initialize();
         SaveData();
     }
@@ -41,8 +39,8 @@ public class LPIPInitializationState : LPIPBaseState
         CAMERA_WIDTH = _webCamTexture.width;
         CAMERA_HEIGHT = _webCamTexture.height;
         
-        GAME_WINDOW_HEIGHT = Display.displays[_lpipCoreManager.PROJECTOR_DISPLAY_ID].systemHeight;
-        GAME_WINDOW_WIDTH = Display.displays[_lpipCoreManager.PROJECTOR_DISPLAY_ID].systemWidth;
+        GAME_WINDOW_HEIGHT = Display.displays[LpipCoreManager.PROJECTOR_DISPLAY_ID].systemHeight;
+        GAME_WINDOW_WIDTH = Display.displays[LpipCoreManager.PROJECTOR_DISPLAY_ID].systemWidth;
         
         
         Debug.LogWarning($"Window res: {GAME_WINDOW_WIDTH}x{GAME_WINDOW_HEIGHT}");
@@ -65,7 +63,7 @@ public class LPIPInitializationState : LPIPBaseState
             GAME_WINDOW_FACTORY = GAME_WINDOW_FACTORY
         };
 
-        _lpipCoreManager.WindowData = windowData;
+        LpipCoreManager.WindowData = windowData;
 
         CameraData cameraData = new CameraData
         {
@@ -73,6 +71,6 @@ public class LPIPInitializationState : LPIPBaseState
             CAMERA_HEIGHT = CAMERA_HEIGHT
         };
 
-        _lpipCoreManager.CameraData = cameraData;
+        LpipCoreManager.CameraData = cameraData;
     }
 }
