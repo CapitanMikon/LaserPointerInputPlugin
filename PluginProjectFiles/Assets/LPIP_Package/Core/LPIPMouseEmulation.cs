@@ -53,8 +53,8 @@ public class LPIPMouseEmulation : MonoBehaviour
         }
 
         _allowNextClick = false;
-        
         _isUIDetected = false;
+        
         //Set the Pointer Event Position
         _pointerEventData = new PointerEventData(EventSystem.current);
         _pointerEventData.position = clickPosition;

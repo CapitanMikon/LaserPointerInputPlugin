@@ -7,7 +7,6 @@ public class LPIPCoreManager : MonoBehaviour
     
     public LPIPBaseState InitializationState { get; private set; }
     public LPIPBaseState ManualCalibrationState {get; private set;}
-    //public LPIPBaseState AutomaticCalibrationState {get; private set;}
     public LPIPBaseState RunningState { get; private set; }
     public LPIPBaseState StandbyState { get; private set; }
 
@@ -18,7 +17,7 @@ public class LPIPCoreManager : MonoBehaviour
     public WindowData WindowData  { get;  set; }
     public WebCamTexture WebCamTexture { get; set; }
     
-    [HideInInspector] public int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
+    [HideInInspector] public int PROJECTOR_DISPLAY_ID = 1;
     [SerializeField] private GameObject rawImage;
     [SerializeField] private ComputeShader computeShader;
     [SerializeField] private Vector3 maxRGBValues = new Vector3( 0.47f, 0.74f, 0.6667f);
@@ -35,7 +34,6 @@ public class LPIPCoreManager : MonoBehaviour
     {
         InitializationState = new LPIPInitializationState();
         ManualCalibrationState = new LPIPManualCalibrationState();
-        //AutomaticCalibrationState = new LPIPAutomaticCalibrationState();
         RunningState = new LPIPRunningState();
         StandbyState = new LPIPStandbyState();
     }
@@ -59,15 +57,15 @@ public class LPIPCoreManager : MonoBehaviour
         }
         if (_currentState == InitializationState)
         {
-            return state == ManualCalibrationState || state == InitializationState || state == StandbyState;// || state == AutomaticCalibrationState;
+            return state == ManualCalibrationState || state == InitializationState || state == StandbyState;
         }
-        if (_currentState == ManualCalibrationState)// || state == AutomaticCalibrationState)
+        if (_currentState == ManualCalibrationState)
         {
-            return state == InitializationState || state == ManualCalibrationState || state == RunningState;// || state == AutomaticCalibrationSate;
+            return state == InitializationState || state == ManualCalibrationState || state == RunningState;
         }
         if (_currentState == RunningState)
         {
-            return state == ManualCalibrationState || state == StandbyState;// || state == AutomaticCalibrationState;
+            return state == ManualCalibrationState || state == StandbyState;
         }
         if (_currentState == StandbyState)
         {
@@ -81,7 +79,6 @@ public class LPIPCoreManager : MonoBehaviour
     {
         if (TransitionToStateIsAllowed(state))
         {
-            //Debug.Log($"Changing state from <color=#c1a730>{_currentState}</color> to <color=#36ba1f>{state}</color>");
             _currentState?.ExitState();
             _currentState = state;
             _currentState?.EnterState(this);

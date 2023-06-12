@@ -15,7 +15,6 @@ public class LPIPManualCalibrationState : LPIPBaseState
         new Vector2(0, 0)
     };
 
-    // The four corners of the destination image
     private Vector2[] ideal = new Vector2[4]{
         new Vector2(0, 0),
         new Vector2(0, 0),
@@ -26,14 +25,10 @@ public class LPIPManualCalibrationState : LPIPBaseState
 
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
-        //Debug.Log("Entered state {LPIPManualCalibrationState}");
         LpipCoreManager = lpipCoreManager;
         
-        Initialize(); 
-        
-        //try load saved calibration
-        //or start anew
-        
+        Initialize();
+
         StartCalibration();
     }
 
@@ -44,7 +39,6 @@ public class LPIPManualCalibrationState : LPIPBaseState
             if (Input.GetMouseButtonDown(0))
             {
                 Vector2 screenPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-                //Debug.Log($"Mouse click at [{screenPosition.x}, {screenPosition.y}]");
                 switch (clickCounter)
                 {
                     case 0:
@@ -62,7 +56,6 @@ public class LPIPManualCalibrationState : LPIPBaseState
                     case 3:
                         real[3].x = Convert.ToInt32(screenPosition.x / _windowData.GAME_WINDOW_FACTORX);
                         real[3].y = Convert.ToInt32(screenPosition.y / _windowData.GAME_WINDOW_FACTORY);
-                        //Debug.Log("Calibrating ended.");
                         EndCalibration();
                         break;
                 }
@@ -78,7 +71,6 @@ public class LPIPManualCalibrationState : LPIPBaseState
         {
             LpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Restart);
         }
-        //Debug.Log("Leaving state {LPIPManualCalibrationState}");
     }
 
     private void Initialize()
@@ -105,7 +97,6 @@ public class LPIPManualCalibrationState : LPIPBaseState
     private void StartCalibration()
     {
         LpipCoreManager.InvokeCalibrationStartedEvent();
-        //Debug.Log("Calibrating started.");
         Debug.Log("Please select 4 starting from points BL, BR, TR, TL.");
         isCalibrating = true;
     }
@@ -114,7 +105,6 @@ public class LPIPManualCalibrationState : LPIPBaseState
     {
         LpipCoreManager.InvokeCalibrationEndedEvent(LPIPCalibrationResult.Normal);
         SaveCalibrationData();
-        //Debug.Log("Calibrating ended. Fired event!");
         isCalibrating = false;
         LpipCoreManager.SwitchState(LpipCoreManager.RunningState);
     }
