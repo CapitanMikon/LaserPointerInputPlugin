@@ -4,12 +4,10 @@ using UnityEngine;
 
 public class LPIPStandbyState : LPIPBaseState
 {
-    private LPIPCoreManager _lpipCoreManager;
-    
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
         //Debug.Log("Entered state {LPIPStandbyState}");
-        _lpipCoreManager = lpipCoreManager;
+        LpipCoreManager = lpipCoreManager;
     }
 
     public override void UpdateState()

@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class LPIPRunningState : LPIPBaseState
 {
-    private LPIPCoreManager _lpipCoreManager;
-    
     private bool beginNoLaserProcedure = false;
     
     private const int EMPTY_FRAMES_THRESHOLD = 5;
@@ -31,10 +29,10 @@ public class LPIPRunningState : LPIPBaseState
     public override void EnterState(LPIPCoreManager lpipCoreManager)
     {
         //Debug.Log("Entered state {LPIPRunningState}");
-        _lpipCoreManager = lpipCoreManager;
+        LpipCoreManager = lpipCoreManager;
 
-        webCamTexture = _lpipCoreManager.WebCamTexture;
-        _lpipCalibrationData = _lpipCoreManager.LpipCalibrationData;
+        webCamTexture = LpipCoreManager.WebCamTexture;
+        _lpipCalibrationData = LpipCoreManager.LpipCalibrationData;
 
         outputTex = new RenderTexture(1920, 1080, 0);
         outputTex.enableRandomWrite = true;
@@ -42,7 +40,7 @@ public class LPIPRunningState : LPIPBaseState
         
         tex = new Texture2D(outputTex.width, outputTex.height);
         
-        _computeShader = _lpipCoreManager.computeShader;
+        _computeShader = LpipCoreManager.GetComputeShader();
         kernelHandle = _computeShader.FindKernel("CSMain");
         
         _computeShader.SetTexture(kernelHandle ,"inputTexture", webCamTexture);
@@ -54,7 +52,7 @@ public class LPIPRunningState : LPIPBaseState
         var rgbValues = lpipCoreManager.GetMaxAllowedRGBValues();
         _computeShader.SetFloats("maxRGBValues",rgbValues.x , rgbValues.y, rgbValues.z);
 
-        var component = _lpipCoreManager.copy.GetComponent<RawImage>();
+        var component = LpipCoreManager.GetRawImage().GetComponent<RawImage>();
         component.texture = outputTex;
 
         _bounds = new Bound[]{new Bound
@@ -85,7 +83,7 @@ public class LPIPRunningState : LPIPBaseState
         {
             if (emptyFrames >= EMPTY_FRAMES_THRESHOLD)
             {
-                _lpipCoreManager.InvokeOnLaserHitUpDetectedEvent(_lastPosition);
+                LpipCoreManager.InvokeOnLaserHitUpDetectedEvent(_lastPosition);
                 emptyFrames = 0;
                 beginNoLaserProcedure = false;
             }
@@ -119,7 +117,7 @@ public class LPIPRunningState : LPIPBaseState
 
     public override void ExitState()
     {
-        var component = _lpipCoreManager.copy.GetComponent<RawImage>();
+        var component = LpipCoreManager.GetRawImage().GetComponent<RawImage>();
         component.material.mainTexture = null;
         outputTex.Release();
         //Debug.Log("Leaving state {LPIPRunningState}");
@@ -128,13 +126,13 @@ public class LPIPRunningState : LPIPBaseState
     
     public void StartLaserDetection()
     {
-        _lpipCoreManager.InvokeDetectionStartedEvent();
+        LpipCoreManager.InvokeDetectionStartedEvent();
         //Debug.Log("Started laser detection.");
     }
     
     public void StopLaserDetection()
     {
-        _lpipCoreManager.InvokeDetectionStoppedEvent();
+        LpipCoreManager.InvokeDetectionStoppedEvent();
         //Debug.Log("Stopped laser detection."); 
     }
 
@@ -146,7 +144,7 @@ public class LPIPRunningState : LPIPBaseState
         
         var result = Project(new Vector2(centerX, centerY));
         _lastPosition = result;
-        _lpipCoreManager.InvokeOnLaserHitDownDetectedEvent(result);
+        LpipCoreManager.InvokeOnLaserHitDownDetectedEvent(result);
     }
     float Determinant(float a, float b, float c, float d)
     {
