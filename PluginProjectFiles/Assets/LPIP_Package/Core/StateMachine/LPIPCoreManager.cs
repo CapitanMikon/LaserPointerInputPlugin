@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class LPIPCoreManager : MonoBehaviour
 {
@@ -16,10 +17,10 @@ public class LPIPCoreManager : MonoBehaviour
     public CameraData CameraData  { get;  set; }
     public WindowData WindowData  { get;  set; }
     public WebCamTexture WebCamTexture { get; set; }
+    
     [HideInInspector] public int PROJECTOR_DISPLAY_ID = 1; // ask user what screen is projector, usually 2nd aside from 1st main screen
-    public GameObject copy;
-    public ComputeShader computeShader;
-
+    [SerializeField] private GameObject rawImage;
+    [SerializeField] private ComputeShader computeShader;
     [SerializeField] private Vector3 maxRGBValues = new Vector3( 0.47f, 0.74f, 0.6667f);
 
     public static event Action OnCalibrationStartedEvent;
@@ -151,5 +152,15 @@ public class LPIPCoreManager : MonoBehaviour
     {
         Debug.LogWarning("LPIP Recalibration requested!");
         SwitchState(ManualCalibrationState);
+    }
+
+    public ComputeShader GetComputeShader()
+    {
+        return computeShader;
+    }
+
+    public GameObject GetRawImage()
+    {
+        return rawImage;
     }
 }

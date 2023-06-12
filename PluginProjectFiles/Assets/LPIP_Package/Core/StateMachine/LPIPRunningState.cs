@@ -40,7 +40,7 @@ public class LPIPRunningState : LPIPBaseState
         
         tex = new Texture2D(outputTex.width, outputTex.height);
         
-        _computeShader = LpipCoreManager.computeShader;
+        _computeShader = LpipCoreManager.GetComputeShader();
         kernelHandle = _computeShader.FindKernel("CSMain");
         
         _computeShader.SetTexture(kernelHandle ,"inputTexture", webCamTexture);
@@ -52,7 +52,7 @@ public class LPIPRunningState : LPIPBaseState
         var rgbValues = lpipCoreManager.GetMaxAllowedRGBValues();
         _computeShader.SetFloats("maxRGBValues",rgbValues.x , rgbValues.y, rgbValues.z);
 
-        var component = LpipCoreManager.copy.GetComponent<RawImage>();
+        var component = LpipCoreManager.GetRawImage().GetComponent<RawImage>();
         component.texture = outputTex;
 
         _bounds = new Bound[]{new Bound
@@ -117,7 +117,7 @@ public class LPIPRunningState : LPIPBaseState
 
     public override void ExitState()
     {
-        var component = LpipCoreManager.copy.GetComponent<RawImage>();
+        var component = LpipCoreManager.GetRawImage().GetComponent<RawImage>();
         component.material.mainTexture = null;
         outputTex.Release();
         //Debug.Log("Leaving state {LPIPRunningState}");
